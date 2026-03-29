@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMT GLOBAL | Secure Access</title>
+    <title>AMT GLOBAL | Ghost Access</title>
     <link rel="stylesheet" href="glass.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="security.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -20,22 +22,21 @@
         </div>
 
         <h1 id="regTitle" class="logo-text">AMT <span>GLOBAL</span></h1>
-        <p id="regSub" style="text-align:center; font-size:12px; color:var(--text-gray); margin-bottom:30px;">نظام الاستثمار الرقمي الآمن والمشفر</p>
+        <p id="regSub" style="text-align:center; font-size:12px; color:rgba(255,255,255,0.6); margin-bottom:30px;">نظام الاستثمار المشفر - الدخول عبر البوت الآمن</p>
         
         <form id="registerForm">
-            <div class="input-group">
-                <input type="text" id="regName" placeholder="الاسم الكامل" required>
-            </div>
+            <input type="text" id="regName" placeholder="الاسم الكامل" required>
             
-            <div style="display:flex; gap:8px; margin-bottom:15px;">
-                <input type="email" id="regEmail" placeholder="الجيميل للتحقق" required style="margin-bottom:0;">
-                <button type="button" onclick="sendOTP()" id="otpBtn" style="width:130px; background:var(--wallet-color); color:white; border:none; border-radius:12px; cursor:pointer; font-size:11px; font-weight:bold;">إرسال الكود</button>
+            <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:15px; margin-bottom:15px; border:1px solid rgba(255,255,255,0.1);">
+                <p id="botInstruction" style="font-size:11px; color:#f1c40f; margin-bottom:10px;">🛡️ للحصول على كود التفعيل، اضغط على الزر وكلم البوت:</p>
+                <a href="https://t.me/AMT_Verify_Bot" target="_blank" class="btn-primary" style="background:#0088cc; font-size:11px; padding:8px; text-decoration:none; display:block; text-align:center;">
+                    <i class="fab fa-telegram"></i> فتح بوت التفعيل
+                </a>
+                <input type="text" id="otpCode" placeholder="أدخل كود التفعيل هنا" required style="margin-top:10px; border:1px solid #0088cc;">
             </div>
-            
-            <input type="text" id="otpCode" placeholder="أدخل الكود (6 أرقام)" required style="display:none; border:2px solid var(--trade-color); animation: fadeIn 0.5s;">
 
             <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <select id="countryCode" style="width:45%; background:rgba(255,255,255,0.05); color:white; border-radius:12px;">
+                <select id="countryCode" style="width:40%; background:rgba(0,0,0,0.3); color:white; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
                     <option value="+20">🇪🇬 مصر</option>
                     <option value="+213">🇩🇿 الجزائر</option>
                     <option value="+212">🇲🇦 المغرب</option>
@@ -44,65 +45,32 @@
                     <option value="+91">🇮🇳 الهند</option>
                     <option value="+7">🇷🇺 روسيا</option>
                     <option value="+966">🇸🇦 السعودية</option>
-                    <option value="+971">🇦🇪 الإمارات</option>
                 </select>
                 <input type="tel" id="regPhone" placeholder="رقم الهاتف" required style="margin-bottom:0;">
             </div>
 
             <input type="password" id="regPass" placeholder="كلمة السر" required>
 
-            <button type="submit" id="submitBtn" class="btn-primary" style="display:none; background:var(--trade-color); margin-top:10px;">إنشاء الحساب وتفعيل الأمان</button>
+            <button type="submit" class="btn-primary" style="background:linear-gradient(90deg, #00c853, #b2ff59); color:black; font-weight:bold; margin-top:10px;">فتح حسابي الآن</button>
         </form>
         
         <div class="text-center" style="margin-top:20px;">
-            <p id="haveAcc" style="font-size:13px; color:white;">لديك حساب بالفعل؟ <a href="login.html" style="color:var(--trade-color); font-weight:bold; text-decoration:none;">تسجيل دخول</a></p>
+            <p id="haveAcc" style="font-size:13px; color:white;">لديك حساب بالفعل؟ <a href="login.html" style="color:#b2ff59; font-weight:bold; text-decoration:none;">تسجيل دخول</a></p>
         </div>
 
         <div class="footer-info">
-            <span class="version-badge">AMT NETWORK v4.5.0</span>
+            <span class="version-badge">GHOST PROTOCOL v4.6.0</span>
         </div>
     </div>
 
     <script>
-        let generatedOTP = "";
-
-        // دالة إرسال الكود عبر السيرفر الوسيط
-        async function sendOTP() {
-            const email = document.getElementById('regEmail').value;
-            if(!email.includes('@')) return alert("Please enter a valid Gmail");
-            
-            generatedOTP = Math.floor(100000 + Math.random() * 900000);
-            const btn = document.getElementById('otpBtn');
-            btn.innerText = "...";
-            btn.disabled = true;
-
-            try {
-                // ملاحظة: الرابط ده بيتغير بعد ما ترفع ملف api/secure-gate.js على Vercel
-                const res = await fetch('/api/secure-gate', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ type: 'send_otp', email: email, code: generatedOTP })
-                });
-
-                if(res.ok) {
-                    alert("✅ تم إرسال كود التحقق لبريدك الإلكتروني");
-                    document.getElementById('otpCode').style.display = 'block';
-                    document.getElementById('submitBtn').style.display = 'block';
-                }
-            } catch(e) {
-                alert("❌ فشل في إرسال الكود. تأكد من إعدادات السيرفر.");
-                btn.disabled = false;
-                btn.innerText = "إرسال الكود";
-            }
-        }
-
-        // نظام الترجمة اللحظية
+        // نظام الترجمة اللحظية لـ 5 لغات
         const translations = {
-            ar: { title: "AMT <span>GLOBAL</span>", sub: "نظام الاستثمار الرقمي الآمن", name: "الاسم الكامل", email: "الجيميل للتحقق", btn: "إرسال الكود", phone: "رقم الهاتف", pass: "كلمة السر", have: "لديك حساب بالفعل؟", login: "تسجيل دخول" },
-            en: { title: "AMT <span>GLOBAL</span>", sub: "Secure Digital Investment System", name: "Full Name", email: "Verify Gmail", btn: "Send Code", phone: "Phone Number", pass: "Password", have: "Already have an account?", login: "Login" },
-            id: { title: "AMT <span>GLOBAL</span>", sub: "Sistem Investasi Digital Aman", name: "Nama Lengkap", email: "Verifikasi Gmail", btn: "Kirim Kode", phone: "Nomor Telepon", pass: "Kata Sandi", have: "Sudah punya akun?", login: "Masuk" },
-            ru: { title: "AMT <span>GLOBAL</span>", sub: "Безопасная цифровая система", name: "Полное имя", email: "Подтвердите Gmail", btn: "Отправить код", phone: "Номер телефона", pass: "Пароль", have: "Уже есть аккаунт?", login: "Войти" },
-            hi: { title: "AMT <span>GLOBAL</span>", sub: "सुरक्षित डिजिटल निवेश प्रणाली", name: "पूरा नाम", email: "जीमेल सत्यापित करें", btn: "कोड भेजें", phone: "फ़ोन नंबर", pass: "पासवर्ड", have: "क्या आपके पास पहले से खाता है?", login: "लॉग इन करें" }
+            ar: { title: "AMT <span>GLOBAL</span>", sub: "الدخول عبر البوت الآمن", name: "الاسم الكامل", bot: "🛡️ للحصول على كود التفعيل، كلم البوت:", otp: "أدخل كود التفعيل هنا", phone: "رقم الهاتف", pass: "كلمة السر", have: "لديك حساب بالفعل؟", login: "تسجيل دخول" },
+            en: { title: "AMT <span>GLOBAL</span>", sub: "Secure Bot Entry System", name: "Full Name", bot: "🛡️ To get activation code, chat with bot:", otp: "Enter activation code", phone: "Phone Number", pass: "Password", have: "Already have an account?", login: "Login" },
+            id: { title: "AMT <span>GLOBAL</span>", sub: "Sistem Masuk Bot Aman", name: "Nama Lengkap", bot: "🛡️ Untuk kode, chat dengan bot:", otp: "Masukkan kode aktivasi", phone: "Nomor Telepon", pass: "Kata Sandi", have: "Sudah punya akun?", login: "Masuk" },
+            ru: { title: "AMT <span>GLOBAL</span>", sub: "Безопасный вход через бота", name: "Полное имя", bot: "🛡️ Получить код через бота:", otp: "Введите код активации", phone: "Номер телефона", pass: "Пароль", have: "Есть аккаунт?", login: "Войти" },
+            hi: { title: "AMT <span>GLOBAL</span>", sub: "सुरक्षित बॉट प्रविष्टि प्रणाली", name: "पूरा नाम", bot: "🛡️ कोड के लिए बॉट से चैट करें:", otp: "सक्रियण कोड दर्ज करें", phone: "फ़ोन नंबर", pass: "पासवर्ड", have: "क्या आपके पास खाता है?", login: "लॉग इन करें" }
         };
 
         function changeLang(lang) {
@@ -110,19 +78,18 @@
             document.getElementById('regTitle').innerHTML = t.title;
             document.getElementById('regSub').innerText = t.sub;
             document.getElementById('regName').placeholder = t.name;
-            document.getElementById('regEmail').placeholder = t.email;
-            document.getElementById('otpBtn').innerText = t.btn;
+            document.getElementById('botInstruction').innerText = t.bot;
+            document.getElementById('otpCode').placeholder = t.otp;
             document.getElementById('regPhone').placeholder = t.phone;
             document.getElementById('regPass').placeholder = t.pass;
-            document.getElementById('haveAcc').innerHTML = `${t.have} <a href="login.html" style="color:var(--trade-color); font-weight:bold; text-decoration:none;">${t.login}</a>`;
+            document.getElementById('haveAcc').innerHTML = `${t.have} <a href="login.html" style="color:#b2ff59; font-weight:bold;">${t.login}</a>`;
             document.dir = (lang === 'ar') ? 'rtl' : 'ltr';
         }
     </script>
 
     <style>
-        .lang-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 5px 10px; border-radius: 8px; cursor: pointer; font-size: 10px; transition: 0.3s; }
-        .lang-btn:hover { background: var(--trade-color); color: black; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .lang-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 11px; transition: 0.3s; }
+        .lang-btn:hover { background: #b2ff59; color: black; border-color: #b2ff59; }
     </style>
 </body>
 </html>
