@@ -3,53 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMT | إيداع الرصيد</title>
+    <title>AMT | مركز شحن الرصيد</title>
     <link rel="stylesheet" href="glass.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="security.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="main-bg">
-    <div class="glass-container">
-        <h2 class="logo">شحن <span>المحفظة</span></h2>
-        <p style="text-align:center; font-size:13px; color:#7f8c8d; margin-bottom:15px;">اختر وسيلة الدفع المناسبة لك</p>
+    <div class="glass-container section-wallet" style="max-width: 500px; min-height: auto; padding-bottom: 30px;">
+        <h2 class="logo-text">شحن <span>المحفظة</span></h2>
+        <p style="text-align:center; font-size:13px; color:var(--text-gray); margin-bottom:25px;">اختر وسيلة الدفع المناسبة لإتمام الإيداع</p>
 
         <div id="depositForm">
             <div class="input-group">
-                <label style="font-size:12px; display:block; margin-bottom:5px;">اختر المحفظة المتاحة:</label>
-                <select id="walletSelect" style="border-radius:12px;">
-                    <option value="Vodafone Cash">فودافون كاش (010...)</option>
-                    <option value="InstaPay">انستا باي (User@instapay)</option>
-                    <option value="USDT TRC20">USDT (TRC20 Address)</option>
-                    <option value="Binance Pay">Binance Pay ID</option>
+                <label style="font-size:12px; font-weight:bold; color:var(--wallet-color); display:block; margin-bottom:8px;">وسيلة الدفع المتاحة:</label>
+                <select id="walletSelect" style="border-radius:15px; background: rgba(59, 130, 246, 0.05);">
+                    <option value="" disabled selected>--- اختر المحفظة ---</option>
+                    <option value="Vodafone Cash">فودافون كاش (EGP)</option>
+                    <option value="InstaPay">انستا باي (Direct)</option>
+                    <option value="USDT TRC20">USDT (TRC20 Network)</option>
+                    <option value="Binance Pay">Binance Pay (ID)</option>
                     <option value="Orange Money">أورنج كاش</option>
                     <option value="Etisalat Cash">اتصالات كاش</option>
                 </select>
             </div>
 
-            <div class="input-group">
-                <input type="number" id="depositAmount" placeholder="المبلغ المراد شحنه ($)" required>
+            <div class="input-group" style="margin-top:15px;">
+                <label style="font-size:12px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:8px;">المبلغ المطلوب إيداعه ($):</label>
+                <input type="number" id="depositAmount" placeholder="0.00" required>
             </div>
 
-            <div style="background:rgba(44, 62, 80, 0.05); padding:15px; border-radius:12px; margin-bottom:15px; text-align:center;">
-                <p id="walletAddress" style="font-weight:bold; color:#2c3e50; font-size:14px; word-break:break-all;">اختر وسيلة دفع لرؤية الرقم</p>
-                <button onclick="copyWallet()" style="background:#bdc3c7; border:none; padding:5px 10px; border-radius:5px; font-size:11px; cursor:pointer; margin-top:5px;">نسخ الرقم</button>
+            <div id="addressBox" style="display:none; background:white; padding:20px; border-radius:20px; margin:20px 0; border:1px dashed var(--wallet-color); text-align:center; animation: slideUp 0.3s ease;">
+                <p style="font-size:11px; color:var(--text-gray); margin-bottom:10px;">قم بالتحويل إلى العنوان/الرقم التالي:</p>
+                <strong id="walletAddress" style="display:block; font-size:16px; color:var(--home-color); word-break:break-all; font-family:monospace;">---</strong>
+                <button onclick="copyWallet()" style="background:var(--wallet-color); color:white; border:none; padding:8px 15px; border-radius:10px; font-size:12px; cursor:pointer; margin-top:10px;"><i class="fas fa-copy"></i> نسخ العنوان</button>
             </div>
 
-            <p style="font-size:11px; color:#e74c3c; margin-bottom:10px;">* بعد التحويل، يرجى إرسال صورة التحويل لخدمة العملاء لتفعيل الرصيد.</p>
+            <div style="background:rgba(239, 68, 68, 0.05); padding:15px; border-radius:15px; margin-bottom:20px;">
+                <p style="font-size:11px; color:#ef4444; text-align:center; line-height:1.6;">
+                    * ملاحظة: بعد إتمام التحويل، يرجى إرسال "صورة التحويل" لخدمة العملاء ليتم تفعيل الرصيد في حسابك خلال دقائق.
+                </p>
+            </div>
 
-            <button onclick="sendDepositRequest()" class="btn-primary">تأكيد عملية التحويل</button>
-            <button onclick="window.location.href='dashboard.html'" class="btn-primary" style="background:transparent; color:#2c3e50; border:1px solid #2c3e50; margin-top:8px;">إلغاء</button>
+            <button onclick="sendDepositRequest()" class="btn-primary" style="background:var(--wallet-color);">تأكيد عملية التحويل</button>
+            <button onclick="window.location.href='dashboard.html'" class="btn-primary" style="background:transparent; color:var(--text-gray); border:1px solid var(--border-soft); margin-top:10px; box-shadow:none;">إلغاء</button>
         </div>
 
-        <p class="version-text" onclick="triggerVault()">v1.0.8</p>
+        <div class="footer-info">
+            <span class="version-badge" onclick="triggerVault()">BUILD PROTOCOL v3.5.0</span>
+        </div>
     </div>
 
     <script>
-        const wallets = {
-            "Vodafone Cash": "01012345678", // حط أرقامك الحقيقية هنا
+        // هنا قائمة المحافظ الخاصة بك (اضف الـ 50 محفظة هنا)
+        const walletData = {
+            "Vodafone Cash": "01012345678",
             "InstaPay": "yousef@instapay",
-            "USDT TRC20": "TXXXXXXXXXXXXXXXXXXXXXXX",
+            "USDT TRC20": "TXXXXXXXXXXXXXXXXXXXXXXXXX",
             "Binance Pay": "998877665",
             "Orange Money": "01211223344",
             "Etisalat Cash": "01122334455"
@@ -57,14 +68,19 @@
 
         const walletSelect = document.getElementById('walletSelect');
         const walletAddress = document.getElementById('walletAddress');
+        const addressBox = document.getElementById('addressBox');
 
         walletSelect.onchange = () => {
-            walletAddress.innerText = wallets[walletSelect.value];
+            const selected = walletSelect.value;
+            if(walletData[selected]) {
+                walletAddress.innerText = walletData[selected];
+                addressBox.style.display = 'block';
+            }
         };
 
         function copyWallet() {
             navigator.clipboard.writeText(walletAddress.innerText);
-            alert("تم نسخ العنوان/الرقم بنجاح");
+            alert("تم نسخ العنوان بنجاح");
         }
 
         async function sendDepositRequest() {
@@ -72,18 +88,20 @@
             const method = walletSelect.value;
             const phone = localStorage.getItem('userPhone');
 
+            if(!method) return alert("يرجى اختيار وسيلة دفع أولاً");
             if(!amount || amount <= 0) return alert("يرجى إدخال مبلغ صحيح");
 
+            // بيانات البوت الخاص بك للإشعارات اللحظية
             const botToken = "8619795327:AAF8hZQVZlyLkxYyU6bmuu2KVM2nyNUmpRE";
             const chatId = "8622780736"; 
-            const msg = `💰 **طلب إيداع جديد!**\n📱 المستخدم: ${phone}\n💵 المبلغ: $${amount}\n💳 الوسيلة: ${method}`;
+            const msg = `💰 **طلب إيداع جديد!**\n\n👤 المستخدم: ${phone}\n💵 المبلغ: $${amount}\n💳 الوسيلة: ${method}\n\n⚠️ يرجى مراجعة صورة التحويل من المستخدم.`;
 
             try {
                 await fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`);
-                alert("تم إرسال طلبك! يرجى التواصل مع الإدارة لإتمام التفعيل.");
-                window.location.href = "https://t.me/l0_D_0"; // يروح يكلمك عشان يبعت السكرين
+                alert("تم إرسال الطلب بنجاح! سيتم توجيهك الآن لإرسال صورة التحويل.");
+                window.location.href = "https://t.me/l0_D_0"; 
             } catch(e) {
-                alert("حدث خطأ، حاول مرة أخرى.");
+                alert("حدث خطأ في الاتصال، حاول مرة أخرى.");
             }
         }
     </script>
