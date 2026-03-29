@@ -1,77 +1,59 @@
-/* Project: AMT INVESTMENT
-   Role: Security Core & Admin Vault
-   Description: Protects the site, logs IPs to Firebase, and handles the 12-word secret access.
+/* AMT Matrix - Security System v2.0
+   Master Access: 2299.99.220077
+   Developed for: Yousef (Matrix Admin)
 */
 
-// 1. Firebase Initialization (Connecting to your engine)
-const firebaseConfig = {
-  apiKey: "AIzaSyAkz8kGNDOJ5caCIbdoXpvJBZgUbigjT5g",
-  authDomain: "matrix-c2.firebaseapp.com",
-  databaseURL: "https://matrix-c2-default-rtdb.firebaseio.com",
-  projectId: "matrix-c2",
-  storageBucket: "matrix-c2.firebasestorage.app",
-  messagingSenderId: "778033605872",
-  appId: "1:778033605872:web:a27df427bcf066adf42635"
-};
+// 1. الكود السري للدخول للوحة التحكم
+const MASTER_KEY = "2299.99.220077";
 
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
-
-// 2. The 12 Words Vault (The Secret Key)
-const VAULT_KEYS = [
-    "Apple", "River", "Bright", "Shadow", "Future", "Mountain", 
-    "Silver", "Electric", "Cloud", "portal", "Forest", "Vision"
-];
-
-// 3. Anti-Theft Logic (Disables Right-Click, F12, and View Source)
-document.addEventListener('contextmenu', e => e.preventDefault());
-document.onkeydown = function(e) {
-    if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0))) || (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0))) {
-        console.warn("AMT Security: Action Blocked.");
-        return false;
-    }
-};
-
-// 4. Silent IP Logger (Logs every visitor to Firebase)
-async function logVisitorIP() {
-    try {
-        const response = await fetch('https://api.ipify.org?format=json');
-        const data = await response.json();
-        const userIP = data.ip;
-        const cleanIP = userIP.replace(/\./g, '_'); // Firebase keys can't have dots
-        
-        const logRef = firebase.database().ref('visitor_logs/' + cleanIP);
-        logRef.update({
-            last_seen: new Date().toLocaleString(),
-            status: "Active"
-        });
-    } catch (err) {
-        // Silently fail to not alert the user
-    }
-}
-logVisitorIP();
-
-// 5. Hidden Trigger Logic (Opens Admin Vault after 3 clicks)
-let secretClicks = 0;
+// وظيفة فتح الخزنة عند الضغط على v1.0.8 ثلاث مرات
 function triggerVault() {
-    secretClicks++;
-    if (secretClicks === 3) {
-        secretClicks = 0;
-        openMatrixVault();
-    }
-}
-
-function openMatrixVault() {
-    // Ask for 3 specific words from your list to verify identity
-    let w1 = prompt("Secret Word #1:");
-    let w5 = prompt("Secret Word #5:");
-    let w12 = prompt("Secret Word #12:");
-
-    if (w1 === VAULT_KEYS[0] && w5 === VAULT_KEYS[4] && w12 === VAULT_KEYS[11]) {
-        alert("Identity Verified. Welcome back, Matrix.");
-        window.location.href = "admin_panel.html"; // Your secret dashboard
+    let accessCode = prompt("AMT Master Access Code:");
+    
+    if (accessCode === MASTER_KEY) {
+        alert("Welcome, Admin. Access Granted.");
+        window.location.href = "admin_panel.html"; 
     } else {
         alert("Access Denied: Wrong Keys.");
     }
 }
+
+// 🛡️ 2. منع الضغط كليك يمين (الماوس)
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault(); 
+});
+
+// 🛡️ 3. قفل اختصارات الكيبورد (منع الفحص وسرقة الكود)
+document.onkeydown = function(e) {
+    // منع F12
+    if (e.keyCode == 123) {
+        return false;
+    }
+    // منع Ctrl + Shift + I (Inspect)
+    if (e.ctrlKey && e.shiftKey && e.keyCode == 73) {
+        return false;
+    }
+    // منع Ctrl + Shift + J (Console)
+    if (e.ctrlKey && e.shiftKey && e.keyCode == 74) {
+        return false;
+    }
+    // منع Ctrl + U (View Source)
+    if (e.ctrlKey && e.keyCode == 85) {
+        return false;
+    }
+    // منع Ctrl + S (Save Page)
+    if (e.ctrlKey && e.keyCode == 83) {
+        return false;
+    }
+};
+
+// 🛡️ 4. حماية من تصوير الشاشة (PrintScreen)
+document.addEventListener('keyup', (e) => {
+    if (e.key === 'PrintScreen') {
+        navigator.clipboard.writeText('Security Alert: Screenshots are prohibited.');
+        alert('تنبيه أمني: تم رصد محاولة تصوير الشاشة.');
+    }
+});
+
+// رسالة ترحيب في الكونسول (للتمويه)
+console.log("%cAMT Matrix System - Security Active", "color: #2ecc71; font-size: 20px; font-weight: bold;");
