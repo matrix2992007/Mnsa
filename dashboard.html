@@ -11,54 +11,74 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="main-bg">
-    <div class="glass-container wider-dash">
+    <div id="main-container" class="glass-container wider-dash">
+        
         <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
             <div>
-                <small style="color:#7f8c8d;">مرحباً بك،</small>
-                <h3 id="userName" style="margin:0; color:#2c3e50;">...</h3>
+                <small style="color:var(--text-gray);">مرحباً بك، المستثمر</small>
+                <h3 id="displayUserName" style="margin:0; color:var(--home-color);">...</h3>
+                <small id="userUID" style="font-size:9px; color:var(--text-gray); font-family:monospace;"></small>
             </div>
-            <div class="logo-small">AMT <span>INV</span></div>
+            <div class="logo-small" style="font-weight:900; font-size:18px;">AMT <span>INV</span></div>
         </header>
 
-        <main style="flex-grow: 1;">
+        <section id="home-tab" class="tab-content active">
+            <div style="background:var(--home-color); color:#fff; padding:30px; border-radius:25px; text-align:center; box-shadow:0 10px 20px rgba(0,0,0,0.1);">
+                <p style="font-size:14px; opacity:0.8;">إجمالي الرصيد المشفر</p>
+                <h1 id="userBalance" style="font-size:36px; margin:10px 0; font-family:monospace;">$0.00</h1>
+                <button onclick="window.location.href='https://t.me/l0_D_0'" class="btn-primary" style="background:var(--trade-color); border:none; margin-top:10px;">سحب فوري (تواصل)</button>
+            </div>
             
-            <section id="home-tab" class="tab-content active">
-                <div style="background:#2c3e50; color:#fff; padding:25px; border-radius:20px; text-align:center;">
-                    <p style="font-size:14px; opacity:0.8;">الرصيد القابل للسحب</p>
-                    <h1 id="userBalance" style="font-size:32px; margin:10px 0;">$0.00</h1>
-                    <button onclick="window.location.href='https://t.me/l0_D_0'" class="btn-primary" style="background:#2ecc71; margin-top:10px;">سحب الأرباح (تواصل معي)</button>
-                </div>
+            <div style="margin-top:20px; display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <button onclick="window.location.href='deposit.html'" class="btn-primary" style="margin:0;">إيداع</button>
+                <button onclick="showTab('trade-tab')" class="btn-primary" style="margin:0; background:var(--text-gray);">تحويل</button>
+            </div>
+        </section>
+
+        <section id="trade-tab" class="tab-content">
+            <h3 style="color:var(--trade-color); margin-bottom:15px;"><i class="fas fa-chart-line"></i> مركز التداول السريع</h3>
+            <div style="background:rgba(16, 185, 129, 0.05); padding:20px; border-radius:20px; border:1px solid rgba(16, 185, 129, 0.1);">
+                <label style="font-size:12px; display:block; margin-bottom:8px;">من: USDT (TRC20)</label>
+                <input type="number" id="tradeAmount" placeholder="أدخل الكمية">
                 
-                <div style="margin-top:20px;">
-                    <button onclick="window.location.href='deposit.html'" class="btn-primary">إيداع رصيد جديد</button>
+                <div style="text-align:center; margin:10px 0;"><i class="fas fa-exchange-alt" style="color:var(--trade-color); transform:rotate(90deg);"></i></div>
+                
+                <label style="font-size:12px; display:block; margin-bottom:8px;">إلى: عملة المنصة الذكية</label>
+                <select id="targetCurrency">
+                    <option value="BTC">Bitcoin (BTC)</option>
+                    <option value="ETH">Ethereum (ETH)</option>
+                    <option value="AMT">AMT Coin (Internal)</option>
+                </select>
+                <button class="btn-primary" style="background:var(--trade-color);" onclick="processTrade()">تأكيد عملية التحويل</button>
+            </div>
+        </section>
+
+        <section id="events-tab" class="tab-content">
+            <h3 style="color:var(--events-color); margin-bottom:15px;"><i class="fas fa-bullhorn"></i> الأحداث المباشرة</h3>
+            <div id="eventsList" style="display:grid; gap:10px;">
+                <div style="background:#fff; padding:15px; border-radius:15px; border-right:5px solid var(--events-color); box-shadow:0 5px 10px rgba(0,0,0,0.02);">
+                    <strong style="display:block; font-size:14px;">تم إطلاق البروتوكول v3.5</strong>
+                    <p style="font-size:12px; color:var(--text-gray); margin-top:5px;">أهلاً بك في النسخة الأحدث والأكثر أماناً من AMT.</p>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <section id="tasks-tab" class="tab-content">
-                <h3 style="margin-bottom:15px; color:#2c3e50;">المهام اليومية</h3>
-                <div id="tasksList" style="display:grid; gap:10px;">
-                    <p style="text-align:center; color:#bdc3c7;">جاري تحميل المهام...</p>
+        <section id="wallet-tab" class="tab-content">
+            <h3 style="color:var(--wallet-color); margin-bottom:15px;"><i class="fas fa-wallet"></i> السجلات المالية</h3>
+            <div id="tasksContainer" style="display:grid; gap:10px;">
                 </div>
-            </section>
+        </section>
 
-            <section id="team-tab" class="tab-content">
-                <h3>برنامج الإحالة</h3>
-                <div style="background:rgba(0,0,0,0.02); padding:15px; border-radius:15px; margin-top:15px;">
-                    <p style="font-size:13px; color:#7f8c8d;">رابط فريقك الخاص:</p>
-                    <input type="text" id="refLink" readonly style="margin-top:10px; font-size:12px;">
-                    <button onclick="copyRef()" class="btn-primary" style="padding:10px;">نسخ الرابط</button>
-                </div>
-            </section>
-
-        </main>
-
-        <nav style="position:absolute; bottom:0; left:0; width:100%; display:flex; justify-content:space-around; padding:15px 0; background:#fff; border-top:1px solid #eee;">
-            <div onclick="showTab('home-tab')" style="cursor:pointer; text-align:center; color:#2c3e50;"><i class="fas fa-home"></i><br><small>الرئيسية</small></div>
-            <div onclick="showTab('tasks-tab')" style="cursor:pointer; text-align:center; color:#bdc3c7;"><i class="fas fa-tasks"></i><br><small>المهام</small></div>
-            <div onclick="showTab('team-tab')" style="cursor:pointer; text-align:center; color:#bdc3c7;"><i class="fas fa-users"></i><br><small>الفريق</small></div>
+        <nav style="position:absolute; bottom:0; left:0; width:100%; display:flex; justify-content:space-around; padding:15px 0; background:#fff; border-top:1px solid #eee; border-radius: 0 0 40px 40px;">
+            <div onclick="showTab('home-tab')" class="nav-item active" id="nav-home"><i class="fas fa-th-large"></i><br><small>الرئيسية</small></div>
+            <div onclick="showTab('trade-tab')" class="nav-item" id="nav-trade"><i class="fas fa-sync"></i><br><small>تداول</small></div>
+            <div onclick="showTab('events-tab')" class="nav-item" id="nav-events"><i class="fas fa-bolt"></i><br><small>أحداث</small></div>
+            <div onclick="showTab('wallet-tab')" class="nav-item" id="nav-wallet"><i class="fas fa-tasks"></i><br><small>مهام</small></div>
         </nav>
 
-        <p class="version-text" onclick="triggerVault()">v1.0.8</p>
+        <div class="footer-info">
+            <span class="version-badge" onclick="triggerVault()">BUILD PROTOCOL v3.5.0</span>
+        </div>
     </div>
 
     <script>
@@ -72,49 +92,59 @@
         const phone = localStorage.getItem('userPhone');
         if(!phone) window.location.href = "login.html";
 
-        const userRef = firebase.database().ref('users/' + phone);
-        
-        // جلب البيانات لحظياً (رصيد + مهام)
+        const db = firebase.database();
+        const userRef = db.ref('users/' + phone);
+
+        // جلب وفك تشفير البيانات
         userRef.on('value', (snapshot) => {
             const data = snapshot.val();
             if(data) {
-                document.getElementById('userName').innerText = data.full_name;
-                document.getElementById('userBalance').innerText = `$${data.balance || 0}`;
-                document.getElementById('refLink').value = window.location.origin + window.location.pathname + "?ref=" + phone;
-                
-                // عرض المهام اللي أنت ضفتها يدوي
-                const taskContainer = document.getElementById('tasksList');
-                taskContainer.innerHTML = "";
+                // فك تشفير الاسم لعرضه
+                const realName = MatrixCrypto.decrypt(data.full_name);
+                document.getElementById('displayUserName').textContent = realName;
+                document.getElementById('userBalance').textContent = `$${data.balance || 0}`;
+                document.getElementById('userUID').textContent = "UID: " + data.id;
+
+                // تحديث قائمة المهام
+                const taskBox = document.getElementById('tasksContainer');
+                taskBox.innerHTML = "";
                 if(data.tasks) {
                     data.tasks.forEach(t => {
-                        taskContainer.innerHTML += `<div style="background:#fff; padding:15px; border-radius:12px; border:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
-                            <span>${t}</span>
-                            <i class="fas fa-chevron-left" style="color:#bdc3c7;"></i>
+                        taskBox.innerHTML += `<div style="background:#fff; padding:15px; border-radius:12px; border:1px solid #eee; display:flex; justify-content:space-between;">
+                            <span style="font-size:13px;">${t}</span>
+                            <i class="fas fa-check-circle" style="color:var(--wallet-color);"></i>
                         </div>`;
                     });
-                } else {
-                    taskContainer.innerHTML = "<p style='text-align:center;'>لا توجد مهام حالياً</p>";
                 }
             }
         });
 
         function showTab(tabId) {
+            // إخفاء كل التبويبات
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            // إظهار التبويب المطلوب
             document.getElementById(tabId).classList.add('active');
+            
+            // تغيير لون البوردر العلوي حسب القسم
+            const container = document.getElementById('main-container');
+            container.className = 'glass-container wider-dash';
+            if(tabId === 'trade-tab') container.classList.add('section-trade');
+            if(tabId === 'events-tab') container.classList.add('section-events');
+            if(tabId === 'wallet-tab') container.classList.add('section-wallet');
         }
 
-        function copyRef() {
-            const copyText = document.getElementById("refLink");
-            copyText.select();
-            document.execCommand("copy");
-            alert("تم نسخ رابط الإحالة!");
+        function processTrade() {
+            const amount = document.getElementById('tradeAmount').value;
+            if(!amount || amount <= 0) return alert("يرجى إدخال مبلغ صحيح");
+            alert("طلب التحويل قيد المعالجة من قبل AMT Network");
         }
     </script>
 
     <style>
-        .wider-dash { max-width: 450px; height: 85vh; display: flex; flex-direction: column; }
-        .tab-content { display: none; padding-top: 10px; }
-        .tab-content.active { display: block; }
+        .wider-dash { height: 90vh; }
+        .nav-item { cursor: pointer; text-align: center; color: var(--text-gray); font-size: 18px; transition: 0.3s; width: 25%; }
+        .nav-item i { margin-bottom: 4px; }
+        .nav-item:hover, .nav-item.active { color: var(--home-color); transform: translateY(-3px); }
     </style>
 </body>
 </html>
