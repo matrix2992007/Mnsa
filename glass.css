@@ -1,98 +1,70 @@
-/* Project: AMT INVESTMENT - Visual Identity
-   Theme: White, Grey & Glassmorphism
-*/
-
+/* AMT INVESTMENT - Matrix Visual Engine v1.0.8 */
 :root {
-    --primary-bg: #f4f7f6; /* الرمادي الفاتح جداً */
-    --glass-bg: rgba(255, 255, 255, 0.7); /* أبيض شفاف */
-    --accent-gold: #d4af37; /* ذهبي للمحفظة */
-    --accent-green: #2ecc71; /* أخضر للإحالات */
-    --text-main: #2c3e50; /* رمادي غامق للنصوص */
-    --border-color: rgba(255, 255, 255, 0.3);
+    --main-bg: #f0f2f5;         /* رمادي فاتح جداً للخلفية */
+    --glass-bg: rgba(255, 255, 255, 0.8); /* أبيض زجاجي */
+    --accent: #2c3e50;          /* لون الأزرار والخطوط (رمادي غامق) */
+    --text-main: #333;          /* لون النصوص */
+    --border-color: rgba(0, 0, 0, 0.08);
 }
 
-* {
+/* وضع الشعار في الخلفية بشكل ثابت وشبح */
+body {
+    background-color: var(--main-bg);
+    background-image: url('logo.png'); /* ارفع صورتك باسم logo.png */
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 350px;
+    background-attachment: fixed;
     margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-body.main-bg {
-    background: linear-gradient(135deg, #e0e0e0 0%, #ffffff 100%);
-    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
+    height: 100vh;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    transition: 0.5s;
 }
 
-/* حاوية الزجاج - Glass Container */
+/* الحاوية الزجاجية - Glass Container */
 .glass-container {
     background: var(--glass-bg);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
     border: 1px solid var(--border-color);
-    border-radius: 25px;
-    padding: 40px;
+    border-radius: 30px;
+    padding: 25px;
     width: 90%;
-    max-width: 400px;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-    text-align: center;
+    max-width: 420px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+    position: relative;
+    overflow: hidden;
 }
 
-.logo {
-    font-size: 28px;
-    font-weight: 800;
-    color: var(--text-main);
-    margin-bottom: 10px;
+/* نظام التبويبات والأقسام (Tabs Logic) */
+.tab-content {
+    display: none; /* الأقسام مخفية افتراضياً */
+    animation: fadeIn 0.4s ease-in-out;
 }
 
-.logo span {
-    color: #7f8c8d; /* لون الـ Investment */
-    font-weight: 300;
+.tab-content.active {
+    display: block; /* يظهر القسم النشط فقط */
 }
 
-.subtitle {
-    font-size: 14px;
-    color: #95a5a6;
-    margin-bottom: 30px;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-/* حقول الإدخال الاحترافية */
-.input-group {
-    margin-bottom: 20px;
-}
-
-input, select {
-    width: 100%;
-    padding: 15px;
-    background: rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    border-radius: 12px;
-    outline: none;
-    font-size: 14px;
-    color: var(--text-main);
-    transition: 0.3s;
-}
-
-input:focus {
-    background: #fff;
-    box-shadow: 0 0 10px rgba(0,0,0,0.05);
-}
-
-/* زر التسجيل البروفيشنال */
+/* الأزرار البروفيشنال */
 .btn-primary {
     width: 100%;
-    padding: 15px;
-    background: var(--text-main);
+    padding: 14px;
+    background: var(--accent);
     color: #fff;
     border: none;
     border-radius: 12px;
     font-weight: 600;
     cursor: pointer;
     transition: 0.3s;
-    margin-top: 10px;
 }
 
 .btn-primary:hover {
@@ -100,21 +72,21 @@ input:focus {
     transform: translateY(-2px);
 }
 
-/* رقم الإصدار المخفي (الخزنة) */
-.version-text {
-    margin-top: 25px;
-    font-size: 10px;
-    color: #bdc3c7;
-    cursor: pointer;
-    user-select: none;
+/* حقول الإدخال */
+input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    outline: none;
+    background: rgba(255,255,255,0.5);
 }
 
-/* خاص بجروب الهاتف */
-.phone-group {
-    display: flex;
-    gap: 10px;
-}
-
-.phone-group select {
-    width: 100px;
+/* نسخة الـ Dark Mode لو حبيت تفعلها يدوياً */
+.dark-mode {
+    --main-bg: #121212;
+    --glass-bg: rgba(30, 30, 30, 0.9);
+    --text-main: #fff;
+    --border-color: rgba(255, 255, 255, 0.1);
 }
