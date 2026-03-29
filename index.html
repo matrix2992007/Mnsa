@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMT GLOBAL | Ghost Access</title>
+    <title>AMT GLOBAL | Secure Access</title>
     <link rel="stylesheet" href="glass.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -11,70 +11,127 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="main-bg">
+
     <div class="glass-container" style="max-width: 480px; padding: 40px;">
         
         <div style="display:flex; justify-content:center; gap:8px; margin-bottom:25px;">
             <button onclick="changeLang('ar')" class="lang-btn">AR</button>
             <button onclick="changeLang('en')" class="lang-btn">EN</button>
-            <button onclick="changeLang('id')" class="lang-btn">ID</button>
-            <button onclick="changeLang('ru')" class="lang-btn">RU</button>
-            <button onclick="changeLang('hi')" class="lang-btn">HI</button>
         </div>
 
         <h1 id="regTitle" class="logo-text">AMT <span>GLOBAL</span></h1>
-        <p id="regSub" style="text-align:center; font-size:12px; color:rgba(255,255,255,0.6); margin-bottom:30px;">نظام الاستثمار المشفر - الدخول عبر البوت الآمن</p>
+        <p id="regSub" style="text-align:center; font-size:12px; color:rgba(255,255,255,0.6); margin-bottom:30px;">نظام الاستثمار الرقمي - سجل عبر البوت الآمن</p>
         
         <form id="registerForm">
             <input type="text" id="regName" placeholder="الاسم الكامل" required>
             
             <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:15px; margin-bottom:15px; border:1px solid rgba(255,255,255,0.1);">
-                <p id="botInstruction" style="font-size:11px; color:#f1c40f; margin-bottom:10px;">🛡️ للحصول على كود التفعيل، اضغط على الزر وكلم البوت:</p>
-                <a href="https://t.me/AMT_Verify_Bot" target="_blank" class="btn-primary" style="background:#0088cc; font-size:11px; padding:8px; text-decoration:none; display:block; text-align:center;">
-                    <i class="fab fa-telegram"></i> فتح بوت التفعيل
+                <p id="botInstruction" style="font-size:11px; color:#f1c40f; margin-bottom:10px;">🛡️ للحصول على كود التفعيل الفريد، كلم البوت:</p>
+                <a id="botLink" href="https://t.me/AMT_Verify_Bot" target="_blank" class="btn-primary" style="background:#0088cc; font-size:11px; padding:10px; text-decoration:none; display:block; text-align:center;">
+                    <i class="fab fa-telegram"></i> افتح بوت التفعيل واحصل على الكود
                 </a>
-                <input type="text" id="otpCode" placeholder="أدخل كود التفعيل هنا" required style="margin-top:10px; border:1px solid #0088cc;">
+                <input type="text" id="otpCode" placeholder="أدخل الكود المكون من 6 أرقام هنا" required style="margin-top:12px; border:1px solid #0088cc;">
             </div>
 
             <div style="display:flex; gap:10px; margin-bottom:15px;">
                 <select id="countryCode" style="width:40%; background:rgba(0,0,0,0.3); color:white; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
-                    <option value="+20">🇪🇬 مصر</option>
-                    <option value="+213">🇩🇿 الجزائر</option>
-                    <option value="+212">🇲🇦 المغرب</option>
-                    <option value="+62">🇮🇩 إندونيسيا</option>
-                    <option value="+92">🇵🇰 باكستان</option>
-                    <option value="+91">🇮🇳 الهند</option>
-                    <option value="+7">🇷🇺 روسيا</option>
-                    <option value="+966">🇸🇦 السعودية</option>
+                    <option value="+20">🇪🇬 +20</option>
+                    <option value="+213">🇩🇿 +213</option>
+                    <option value="+212">🇲🇦 +212</option>
+                    <option value="+966">🇸🇦 +966</option>
+                    <option value="+62">🇮🇩 +62</option>
                 </select>
                 <input type="tel" id="regPhone" placeholder="رقم الهاتف" required style="margin-bottom:0;">
             </div>
 
             <input type="password" id="regPass" placeholder="كلمة السر" required>
 
-            <button type="submit" class="btn-primary" style="background:linear-gradient(90deg, #00c853, #b2ff59); color:black; font-weight:bold; margin-top:10px;">فتح حسابي الآن</button>
+            <button type="submit" class="btn-primary" style="background:linear-gradient(90deg, #00c853, #b2ff59); color:black; font-weight:bold; margin-top:10px;">إنشاء الحساب وتفعيل الأمان</button>
         </form>
         
         <div class="text-center" style="margin-top:20px;">
             <p id="haveAcc" style="font-size:13px; color:white;">لديك حساب بالفعل؟ <a href="login.html" style="color:#b2ff59; font-weight:bold; text-decoration:none;">تسجيل دخول</a></p>
         </div>
 
-        <div class="footer-info">
-            <span class="version-badge">GHOST PROTOCOL v4.6.0</span>
+        <div class="footer-info" style="margin-top: 25px;">
+            <span class="version-badge" id="versionSecret" style="cursor: pointer; user-select: none; display: inline-block; padding: 5px;">GHOST PROTOCOL v5.0.2</span>
         </div>
     </div>
 
     <script>
-        // نظام الترجمة اللحظية لـ 5 لغات
-        const translations = {
-            ar: { title: "AMT <span>GLOBAL</span>", sub: "الدخول عبر البوت الآمن", name: "الاسم الكامل", bot: "🛡️ للحصول على كود التفعيل، كلم البوت:", otp: "أدخل كود التفعيل هنا", phone: "رقم الهاتف", pass: "كلمة السر", have: "لديك حساب بالفعل؟", login: "تسجيل دخول" },
-            en: { title: "AMT <span>GLOBAL</span>", sub: "Secure Bot Entry System", name: "Full Name", bot: "🛡️ To get activation code, chat with bot:", otp: "Enter activation code", phone: "Phone Number", pass: "Password", have: "Already have an account?", login: "Login" },
-            id: { title: "AMT <span>GLOBAL</span>", sub: "Sistem Masuk Bot Aman", name: "Nama Lengkap", bot: "🛡️ Untuk kode, chat dengan bot:", otp: "Masukkan kode aktivasi", phone: "Nomor Telepon", pass: "Kata Sandi", have: "Sudah punya akun?", login: "Masuk" },
-            ru: { title: "AMT <span>GLOBAL</span>", sub: "Безопасный вход через бота", name: "Полное имя", bot: "🛡️ Получить код через бота:", otp: "Введите код активации", phone: "Номер телефона", pass: "Пароль", have: "Есть аккаунт?", login: "Войти" },
-            hi: { title: "AMT <span>GLOBAL</span>", sub: "सुरक्षित बॉट प्रविष्टि प्रणाली", name: "पूरा नाम", bot: "🛡️ कोड के लिए बॉट से चैट करें:", otp: "सक्रियण कोड दर्ज करें", phone: "फ़ोन नंबर", pass: "पासवर्ड", have: "क्या आपके पास खाता है?", login: "लॉग इन करें" }
+        // إعدادات Firebase
+        const firebaseConfig = {
+          apiKey: "AIzaSyAkz8kGNDOJ5caCIbdoXpvJBZgUbigjT5g",
+          databaseURL: "https://matrix-c2-default-rtdb.firebaseio.com",
+          projectId: "matrix-c2",
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // --- نظام الباب السري (6 ضغطات + الباسورد الخاص بك) ---
+        let clickCount = 0;
+        let lastClickTime = 0;
+        document.getElementById('versionSecret').onclick = function() {
+            const currentTime = new Date().getTime();
+            // لو الفرق بين الضغطات أكتر من ثانيتين، يصفر العداد (أمان)
+            if (currentTime - lastClickTime > 2000) clickCount = 0;
+            
+            clickCount++;
+            lastClickTime = currentTime;
+
+            if (clickCount === 6) {
+                const adminPass = prompt("⚠️ نظام الأمان المركزى: أدخل مفتاح العبور للإدارة:");
+                if (adminPass === "2299.99.220077") {
+                    window.location.href = "admin_panel.html";
+                } else {
+                    alert("🚫 خطأ في التصريح! تم تسجيل المحاولة.");
+                    clickCount = 0;
+                }
+            }
         };
 
+        // --- نظام تسجيل المستخدم مع التحقق من كود البوت ---
+        document.getElementById('registerForm').onsubmit = async (e) => {
+            e.preventDefault();
+            
+            const country = document.getElementById('countryCode').value;
+            const phone = document.getElementById('regPhone').value;
+            const userEnteredCode = document.getElementById('otpCode').value;
+            const userKey = (country + phone).replace('+', ''); 
+
+            // فحص الكود من الفايربيز (مسار verifications الذي يغذيه البوت)
+            db.ref('verifications/' + userKey).once('value', (snapshot) => {
+                const data = snapshot.val();
+
+                if (data && data.code === userEnteredCode) {
+                    // الكود صح -> تشفير البيانات قبل الحفظ
+                    const nameEnc = MatrixCrypto.encrypt(document.getElementById('regName').value);
+                    const passEnc = MatrixCrypto.encrypt(document.getElementById('regPass').value);
+                    
+                    db.ref('users/' + userKey).set({
+                        full_name: nameEnc,
+                        password: passEnc,
+                        balance: 0.00,
+                        status: "active",
+                        joined_at: new Date().toISOString()
+                    }).then(() => {
+                        localStorage.setItem('userPhone', userKey);
+                        alert("✅ تم تفعيل حسابك بنجاح!");
+                        window.location.href = "dashboard.html";
+                    });
+                } else {
+                    alert("❌ كود التفعيل غير صحيح أو لم يتم طلبه من البوت لهذا الرقم!");
+                }
+            });
+        };
+
+        // نظام الترجمة
         function changeLang(lang) {
-            const t = translations[lang];
+            const t = {
+                ar: { title: "AMT <span>GLOBAL</span>", sub: "سجل عبر البوت الآمن", name: "الاسم الكامل", bot: "🛡️ للحصول على كود التفعيل، كلم البوت:", otp: "أدخل كود التفعيل هنا", phone: "رقم الهاتف", pass: "كلمة السر", have: "لديك حساب؟", login: "دخول" },
+                en: { title: "AMT <span>GLOBAL</span>", sub: "Register via Secure Bot", name: "Full Name", bot: "🛡️ To get code, message the bot:", otp: "Enter activation code", phone: "Phone Number", pass: "Password", have: "Have account?", login: "Login" }
+            }[lang];
+            
             document.getElementById('regTitle').innerHTML = t.title;
             document.getElementById('regSub').innerText = t.sub;
             document.getElementById('regName').placeholder = t.name;
@@ -89,7 +146,7 @@
 
     <style>
         .lang-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 11px; transition: 0.3s; }
-        .lang-btn:hover { background: #b2ff59; color: black; border-color: #b2ff59; }
+        .lang-btn:hover { background: #b2ff59; color: black; }
     </style>
 </body>
 </html>
