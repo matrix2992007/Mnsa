@@ -3,57 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMT INVESTMENT | Login</title>
+    <title>AMT | Login Access</title>
     <link rel="stylesheet" href="glass.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="security.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="main-bg">
-    <div class="glass-container" style="max-width: 500px; padding: 45px;">
-        <h1 class="logo-text">AMT <span>LOGIN</span></h1>
-        <p style="text-align:center; font-size:13px; color:#64748b; margin-bottom:30px;">قم بتسجيل الدخول للوصول إلى أصولك الرقمية</p>
+    <div class="glass-container" style="max-width: 450px; padding: 40px;">
+        
+        <div style="display:flex; justify-content:center; gap:8px; margin-bottom:20px;">
+            <button onclick="changeLang('ar')" class="lang-btn">AR</button>
+            <button onclick="changeLang('en')" class="lang-btn">EN</button>
+        </div>
+
+        <h1 id="logTitle" class="logo-text">AMT <span>LOGIN</span></h1>
+        <p id="logSub" style="text-align:center; font-size:12px; color:var(--text-gray); margin-bottom:30px;">قم بتسجيل الدخول للوصول إلى أصولك الرقمية</p>
         
         <form id="loginForm">
             <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <select id="loginCountry" style="width:40%; font-size:13px; cursor:pointer;">
+                <select id="loginCountry" style="width:40%; background:rgba(0,0,0,0.3); color:white;">
                     <option value="+20">🇪🇬 +20</option>
+                    <option value="+213">🇩🇿 +213</option>
+                    <option value="+212">🇲🇦 +212</option>
+                    <option value="+62">🇮🇩 +62</option>
+                    <option value="+92">🇵🇰 +92</option>
+                    <option value="+91">🇮🇳 +91</option>
+                    <option value="+7">🇷🇺 +7</option>
                     <option value="+966">🇸🇦 +966</option>
-                    <option value="+971">🇦🇪 +971</option>
-                    <option value="+964">🇮🇶 +964</option>
-                    <option value="+44">🇬🇧 +44</option>
-                    <option value="+1">🇺🇸 +1</option>
                 </select>
                 <input type="tel" id="loginPhone" placeholder="رقم الهاتف" required style="margin-bottom:0;">
             </div>
 
-            <input type="password" id="loginPass" placeholder="كلمة السر المشفرة" required>
+            <input type="password" id="loginPass" placeholder="كلمة السر" required>
             
             <div style="text-align:left; margin-bottom:20px;">
-                <a href="#" style="font-size:12px; color:var(--text-gray); text-decoration:none;">هل نسيت كلمة السر؟</a>
+                <a id="forgotPass" href="#" style="font-size:12px; color:var(--trade-color); text-decoration:none;">نسيت كلمة السر؟</a>
             </div>
 
-            <button type="submit" class="btn-primary">دخول آمن للمنصة</button>
+            <button type="submit" id="btnLog" class="btn-primary" style="background:linear-gradient(90deg, #3b82f6, #60a5fa); color:white;">دخول آمن للمنصة</button>
         </form>
         
-        <div class="text-center mt-20">
-            <p style="font-size:14px;">ليس لديك حساب؟ <a href="index.html" style="color:#2c3e50; font-weight:bold; text-decoration:none;">إنشاء حساب جديد</a></p>
+        <div class="text-center" style="margin-top:20px;">
+            <p id="noAcc" style="font-size:13px; color:white;">ليس لديك حساب؟ <a href="index.html" style="color:var(--trade-color); font-weight:bold; text-decoration:none;">إنشاء حساب جديد</a></p>
         </div>
 
         <div class="footer-info">
-            <span class="version-badge" onclick="triggerVault()">BUILD PROTOCOL v3.5.0</span>
+            <span class="version-badge">AMT AUTH v4.6.0</span>
         </div>
     </div>
 
     <script>
-        // إعدادات Firebase
+        // إعدادات Firebase (استبدلها ببياناتك الخاصة في الخفاء لاحقاً)
         const firebaseConfig = {
           apiKey: "AIzaSyAkz8kGNDOJ5caCIbdoXpvJBZgUbigjT5g",
           databaseURL: "https://matrix-c2-default-rtdb.firebaseio.com",
           projectId: "matrix-c2",
         };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-
         const db = firebase.database();
 
         document.getElementById('loginForm').onsubmit = (e) => {
@@ -62,29 +70,49 @@
             const phoneNum = document.getElementById('loginPhone').value;
             const passInput = document.getElementById('loginPass').value;
             
-            const fullPhone = country + phoneNum;
-            const userKey = fullPhone.replace('+', '');
+            const userKey = (country + phoneNum).replace('+', '');
 
             // البحث عن المستخدم في قاعدة البيانات
             db.ref('users/' + userKey).once('value', (snapshot) => {
                 const userData = snapshot.val();
                 
                 if(userData) {
-                    // تشفير الباسورد المدخل ومقارنته بالمشفر في الداتابيز
+                    // تشفير الباسورد المدخل للمقارنة
                     const encryptedInput = MatrixCrypto.encrypt(passInput);
                     
                     if(userData.password === encryptedInput) {
                         localStorage.setItem('userPhone', userKey);
-                        alert("تم التحقق بنجاح. مرحباً بك في AMT.");
+                        alert("✅ تم التحقق بنجاح. مرحباً بك.");
                         window.location.href = "dashboard.html";
                     } else {
-                        alert("خطأ: كلمة السر غير صحيحة!");
+                        alert("❌ خطأ: كلمة السر غير صحيحة!");
                     }
                 } else {
-                    alert("خطأ: هذا الحساب غير مسجل لدينا.");
+                    alert("❌ خطأ: هذا الحساب غير مسجل لدينا.");
                 }
             });
         };
+
+        const translations = {
+            ar: { title: "AMT <span>LOGIN</span>", sub: "دخول آمن للمنصة", phone: "رقم الهاتف", pass: "كلمة السر", btn: "دخول آمن", noAcc: "ليس لديك حساب؟", reg: "إنشاء حساب" },
+            en: { title: "AMT <span>LOGIN</span>", sub: "Secure Access to Platform", phone: "Phone Number", pass: "Password", btn: "Secure Login", noAcc: "No account?", reg: "Sign Up" }
+        };
+
+        function changeLang(lang) {
+            const t = translations[lang];
+            document.getElementById('logTitle').innerHTML = t.title;
+            document.getElementById('logSub').innerText = t.sub;
+            document.getElementById('loginPhone').placeholder = t.phone;
+            document.getElementById('loginPass').placeholder = t.pass;
+            document.getElementById('btnLog').innerText = t.btn;
+            document.getElementById('noAcc').innerHTML = `${t.noAcc} <a href="index.html" style="color:var(--trade-color); font-weight:bold;">${t.reg}</a>`;
+            document.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+        }
     </script>
+
+    <style>
+        .lang-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 5px 10px; border-radius: 8px; cursor: pointer; font-size: 10px; }
+        .lang-btn:hover { background: var(--trade-color); color: black; }
+    </style>
 </body>
 </html>
