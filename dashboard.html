@@ -3,69 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMT INVESTMENT | لوحة التحكم</title>
+    <title>AMT | Matrix Dashboard</title>
     <link rel="stylesheet" href="glass.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="security.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="main-bg dashboard-body">
-    <div class="glass-container wider">
-        <header class="dash-header">
-            <h1 class="logo">AMT <span>DASHBOARD</span></h1>
-            <div class="user-info">
-                <span id="displayUserName">جاري التحميل...</span>
+<body class="main-bg">
+    <div class="glass-container wider-dash">
+        <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <div>
+                <small style="color:#7f8c8d;">مرحباً بك،</small>
+                <h3 id="userName" style="margin:0; color:#2c3e50;">...</h3>
             </div>
+            <div class="logo-small">AMT <span>INV</span></div>
         </header>
 
-        <div class="balance-cards">
-            <div class="card gold-card">
-                <p>إجمالي الرصيد</p>
-                <h2 id="userBalance">$0.00</h2>
-            </div>
-            <div class="card silver-card">
-                <p>أرباح اليوم</p>
-                <h2 id="dailyProfit">$0.00</h2>
-            </div>
-        </div>
+        <main style="flex-grow: 1;">
+            
+            <section id="home-tab" class="tab-content active">
+                <div style="background:#2c3e50; color:#fff; padding:25px; border-radius:20px; text-align:center;">
+                    <p style="font-size:14px; opacity:0.8;">الرصيد القابل للسحب</p>
+                    <h1 id="userBalance" style="font-size:32px; margin:10px 0;">$0.00</h1>
+                    <button onclick="window.location.href='https://t.me/l0_D_0'" class="btn-primary" style="background:#2ecc71; margin-top:10px;">سحب الأرباح (تواصل معي)</button>
+                </div>
+                
+                <div style="margin-top:20px;">
+                    <button onclick="window.location.href='deposit.html'" class="btn-primary">إيداع رصيد جديد</button>
+                </div>
+            </section>
 
-        <div class="tasks-section">
-            <h3>المهام النشطة (إجباري)</h3>
-            <div class="task-item">
-                <p>انضم لقناة التوصيات الرسمية</p>
-                <a href="https://t.me/YOUR_CHANNEL_1" target="_blank" class="task-btn">انضمام</a>
-            </div>
-            <div class="task-item">
-                <p>متابعة قناة التحديثات</p>
-                <a href="https://t.me/YOUR_CHANNEL_2" target="_blank" class="task-btn">انضمام</a>
-            </div>
-        </div>
+            <section id="tasks-tab" class="tab-content">
+                <h3 style="margin-bottom:15px; color:#2c3e50;">المهام اليومية</h3>
+                <div id="tasksList" style="display:grid; gap:10px;">
+                    <p style="text-align:center; color:#bdc3c7;">جاري تحميل المهام...</p>
+                </div>
+            </section>
 
-        <div class="action-buttons">
-            <button onclick="window.location.href='deposit.html'" class="btn-primary deposit-btn">إيداع (Deposit)</button>
-            <button onclick="window.location.href='withdraw.html'" class="btn-secondary">سحب (Withdraw)</button>
-        </div>
+            <section id="team-tab" class="tab-content">
+                <h3>برنامج الإحالة</h3>
+                <div style="background:rgba(0,0,0,0.02); padding:15px; border-radius:15px; margin-top:15px;">
+                    <p style="font-size:13px; color:#7f8c8d;">رابط فريقك الخاص:</p>
+                    <input type="text" id="refLink" readonly style="margin-top:10px; font-size:12px;">
+                    <button onclick="copyRef()" class="btn-primary" style="padding:10px;">نسخ الرابط</button>
+                </div>
+            </section>
+
+        </main>
+
+        <nav style="position:absolute; bottom:0; left:0; width:100%; display:flex; justify-content:space-around; padding:15px 0; background:#fff; border-top:1px solid #eee;">
+            <div onclick="showTab('home-tab')" style="cursor:pointer; text-align:center; color:#2c3e50;"><i class="fas fa-home"></i><br><small>الرئيسية</small></div>
+            <div onclick="showTab('tasks-tab')" style="cursor:pointer; text-align:center; color:#bdc3c7;"><i class="fas fa-tasks"></i><br><small>المهام</small></div>
+            <div onclick="showTab('team-tab')" style="cursor:pointer; text-align:center; color:#bdc3c7;"><i class="fas fa-users"></i><br><small>الفريق</small></div>
+        </nav>
 
         <p class="version-text" onclick="triggerVault()">v1.0.8</p>
     </div>
 
     <script>
-        // كود جلب بيانات المستخدم وعرضها
-        const userPhone = localStorage.getItem('userPhone'); // بنخزن الفون وقت اللوجن
+        const firebaseConfig = {
+          apiKey: "AIzaSyAkz8kGNDOJ5caCIbdoXpvJBZgUbigjT5g",
+          databaseURL: "https://matrix-c2-default-rtdb.firebaseio.com",
+          projectId: "matrix-c2",
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
-        if(userPhone) {
-            const userRef = firebase.database().ref('users/' + userPhone);
-            userRef.on('value', (snapshot) => {
-                const data = snapshot.val();
-                if(data) {
-                    document.getElementById('displayUserName').innerText = data.full_name;
-                    document.getElementById('userBalance').innerText = `$${data.balance || 0}`;
+        const phone = localStorage.getItem('userPhone');
+        if(!phone) window.location.href = "login.html";
+
+        const userRef = firebase.database().ref('users/' + phone);
+        
+        // جلب البيانات لحظياً (رصيد + مهام)
+        userRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if(data) {
+                document.getElementById('userName').innerText = data.full_name;
+                document.getElementById('userBalance').innerText = `$${data.balance || 0}`;
+                document.getElementById('refLink').value = window.location.origin + window.location.pathname + "?ref=" + phone;
+                
+                // عرض المهام اللي أنت ضفتها يدوي
+                const taskContainer = document.getElementById('tasksList');
+                taskContainer.innerHTML = "";
+                if(data.tasks) {
+                    data.tasks.forEach(t => {
+                        taskContainer.innerHTML += `<div style="background:#fff; padding:15px; border-radius:12px; border:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+                            <span>${t}</span>
+                            <i class="fas fa-chevron-left" style="color:#bdc3c7;"></i>
+                        </div>`;
+                    });
+                } else {
+                    taskContainer.innerHTML = "<p style='text-align:center;'>لا توجد مهام حالياً</p>";
                 }
-            });
-        } else {
-            // لو مفيش بيانات يرجعه للتسجيل
-            window.location.href = 'register.html';
+            }
+        });
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        function copyRef() {
+            const copyText = document.getElementById("refLink");
+            copyText.select();
+            document.execCommand("copy");
+            alert("تم نسخ رابط الإحالة!");
         }
     </script>
+
+    <style>
+        .wider-dash { max-width: 450px; height: 85vh; display: flex; flex-direction: column; }
+        .tab-content { display: none; padding-top: 10px; }
+        .tab-content.active { display: block; }
+    </style>
 </body>
 </html>
