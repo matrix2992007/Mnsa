@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMT INVESTMENT | إيداع الرصيد</title>
+    <link rel="stylesheet" href="glass.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="security.js"></script>
+</head>
+<body class="main-bg">
+    <div class="glass-container wider">
+        <h2 class="logo">إيداع <span>الرصيد</span></h2>
+        <p class="subtitle">اختر الشبكة المناسبة لإتمام عملية الإيداع</p>
+
+        <select id="networkSelect" class="network-select" onchange="showWallet()">
+            <option value="">-- اختر الشبكة --</option>
+            <option value="TRC20">TRON (TRC20)</option>
+            <option value="ERC20">Ethereum (ERC20)</option>
+            <option value="BEP20">BNB Smart Chain (BEP20)</option>
+            <option value="SOL">Solana (SOL)</option>
+            <option value="POLYGON">Polygon (MATIC)</option>
+        </select>
+
+        <div id="walletBox" class="wallet-box" style="display:none;">
+            <p class="wallet-label">عنوان المحفظة الخاص بك:</p>
+            <div class="address-display">
+                <span id="walletAddress">جاري توليد العنوان...</span>
+                <button onclick="copyAddress()" class="copy-btn">نسخ</button>
+            </div>
+            <p class="warning-text">⚠️ تأكد من إرسال العملة الصحيحة للشبكة المختارة.</p>
+        </div>
+
+        <hr class="divider">
+
+        <form id="confirmDeposit">
+            <input type="number" id="amount" placeholder="المبلغ المودع ($)" required>
+            <button type="submit" class="btn-primary">تأكيد وإرسال الإشعار</button>
+        </form>
+
+        <p class="version-text" onclick="triggerVault()">v1.0.8</p>
+    </div>
+
+    <script>
+        const botToken = "8619795327:AAF8hZQVZlyLkxYyU6bmuu2KVM2nyNUmpRE";
+        const chatIds = ["8622780736", "8211953992"];
+
+        // مصفوفة المحافظ (مبدئياً، وهنربطها بلوحة التحكم لاحقاً)
+        const wallets = {
+            "TRC20": ["Txxxxxxxxxxxxxxxx1", "Txxxxxxxxxxxxxxxx2", "Txxxxxxxxxxxxxxxx3"], // هنا هيتحط الـ 10 عناوين
+            "ERC20": ["0xxxxxxxxxxxxxxxxx1", "0xxxxxxxxxxxxxxxxx2"],
+            "BEP20": ["0bxxxxxxxxxxxxxxxx1"],
+            "SOL": ["Sxxxxxxxxxxxxxxxxx1"],
+            "POLYGON": ["0pxxxxxxxxxxxxxxxx1"]
+        };
+
+        function showWallet() {
+            const net = document.getElementById('networkSelect').value;
+            if(net) {
+                const randomWallet = wallets[net][Math.floor(Math.random() * wallets[net].length)];
+                document.getElementById('walletAddress').innerText = randomWallet;
+                document.getElementById('walletBox').style.display = 'block';
+            }
+        }
+
+        function copyAddress() {
+            const addr = document.getElementById('walletAddress').innerText;
+            navigator.clipboard.writeText(addr);
+            alert("تم نسخ العنوان بنجاح!");
+        }
+
+        document.getElementById('confirmDeposit').onsubmit = async (e) => {
+            e.preventDefault();
+            const amount = document.getElementById('amount').value;
+            const net = document.getElementById('networkSelect').value;
+            const addr = document.getElementById('walletAddress').innerText;
+            const depositID = "AMT-" + Math.floor(1000 + Math.random() * 9000); // كود فريد
+
+            const message = `💰 طلب إيداع جديد!\n💵 المبلغ: $${amount}\n🌐 الشبكة: ${net}\n📍 المحفظة: ${addr}\n🆔 كود الإيداع: ${depositID}`;
+
+            chatIds.forEach(id => {
+                fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${id}&text=${encodeURIComponent(message)}`);
+            });
+
+            alert(`تم إرسال الطلب! كود الإيداع الخاص بك هو: ${depositID}\nسيتم مراجعة الطلب وإضافة الرصيد يدوياً.`);
+        };
+    </script>
+</body>
+</html>
