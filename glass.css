@@ -1,14 +1,14 @@
 /* AMT GLOBAL - THE MATRIX HYBRID STYLE */
 :root {
-    --main-bg: #0f172a;           /* أزرق غامق جداً للخلفية */
+    --main-bg: #0b0f19;           /* خلفية داكنة جداً عميقة */
     --glass-bg: rgba(255, 255, 255, 0.03);
     --border-soft: rgba(255, 255, 255, 0.1);
     
-    /* الألوان الأساسية اللي طلبتها */
-    --trade-color: #00ff88;       /* أخضر نيون (التداول) */
+    /* الألوان الأساسية الخاصة بك */
+    --trade-color: #00ff88;       /* أخضر نيون (قوة التداول) */
     --wallet-color: #3b82f6;      /* أزرق ملكي (المحفظة) */
-    --admin-color: #ef4444;       /* أحمر تحذيري (الأدمن) */
-    --events-color: #f1c40f;      /* أصفر ذهبي (الأحداث) */
+    --admin-color: #ef4444;       /* أحمر صارخ (لوحة التحكم) */
+    --events-color: #f1c40f;      /* أصفر ذهبي (الإعلانات) */
     
     --text-main: #ffffff;
     --text-gray: rgba(255, 255, 255, 0.6);
@@ -18,67 +18,66 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
 body.main-bg {
     background: var(--main-bg);
+    /* تأثير إضاءة خلفية خافتة بالألوان الخاصة بك */
     background-image: 
-        radial-gradient(circle at 10% 20%, rgba(0, 255, 136, 0.05) 0%, transparent 40%),
-        radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 40%);
+        radial-gradient(circle at 10% 20%, rgba(0, 255, 136, 0.03) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.03) 0%, transparent 40%);
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--text-main);
-    overflow-x: hidden;
 }
 
-/* حاوية الزجاج (Glassmorphism) */
+/* حاوية الزجاج المشفرة */
 .glass-container {
     background: var(--glass-bg);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--border-soft);
-    border-radius: 30px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    width: 90%;
+    border-radius: 25px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    width: 95%;
     position: relative;
     overflow: hidden;
 }
 
-/* نصوص الشعارات */
+/* نصوص الشعارات بنظام النيون */
 .logo-text {
     text-align: center;
-    font-size: 28px;
+    font-size: 30px;
     font-weight: 900;
-    letter-spacing: 2px;
-    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
 }
 
 .logo-text span {
     color: var(--trade-color);
-    text-shadow: 0 0 15px var(--trade-color);
+    text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
 }
 
-/* تنسيق المدخلات (Inputs) */
+/* تنسيق الحقول Inputs */
 input, select, textarea {
     width: 100%;
-    padding: 14px 20px;
+    padding: 14px 18px;
     margin-bottom: 15px;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.2);
     border: 1px solid var(--border-soft);
-    border-radius: 15px;
+    border-radius: 12px;
     color: white;
     font-size: 14px;
     outline: none;
-    transition: 0.3s;
+    transition: 0.3s ease;
 }
 
-input:focus, select:focus {
+input:focus {
     border-color: var(--trade-color);
-    background: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 0 10px rgba(0, 255, 136, 0.2);
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.1);
 }
 
 /* الأزرار الاحترافية */
@@ -86,59 +85,46 @@ input:focus, select:focus {
     width: 100%;
     padding: 15px;
     border: none;
-    border-radius: 15px;
+    border-radius: 12px;
     font-weight: bold;
-    font-size: 16px;
+    font-size: 15px;
     cursor: pointer;
-    transition: 0.4s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .btn-primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-    filter: brightness(1.1);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    filter: brightness(1.2);
 }
 
-/* ألوان الأقسام */
-.section-trade { border-top: 4px solid var(--trade-color); }
-.section-wallet { border-top: 4px solid var(--wallet-color); }
-.section-admin { border-top: 4px solid var(--admin-color); }
+/* تنسيق الأقسام الملونة */
+.section-trade { border-right: 5px solid var(--trade-color); }
+.section-wallet { border-right: 5px solid var(--wallet-color); }
+.section-admin { border-right: 5px solid var(--admin-color); }
 
-/* المربعات المنبثقة (Ads/Events) */
-#newsTicker {
-    animation: slideDown 0.5s ease-out;
-}
-
-@keyframes slideDown {
-    from { transform: translateY(-100%); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-/* نسخة الإصدار */
+/* تأثير "رقم الإصدار" (الباب السري) */
 .version-badge {
     display: block;
     text-align: center;
     font-size: 10px;
     color: var(--text-gray);
-    margin-top: 20px;
-    letter-spacing: 1px;
-    opacity: 0.5;
+    letter-spacing: 2px;
+    opacity: 0.4;
+    transition: 0.3s;
 }
 
-/* تنسيق القوائم للدول */
-option {
-    background: #1e293b;
-    color: white;
+.version-badge:hover {
+    opacity: 1;
+    color: var(--trade-color);
 }
 
-/* تحسين العرض على الموبايل */
+/* تحسينات الموبايل */
 @media (max-width: 480px) {
-    .glass-container {
-        padding: 25px !important;
-    }
-    .logo-text { font-size: 22px; }
+    .glass-container { padding: 30px 20px !important; }
+    .logo-text { font-size: 24px; }
 }
