@@ -1,79 +1,152 @@
-/* AMT INVESTMENT - Matrix Visual Engine v1.0.8 */
+/* AMT INVESTMENT - Matrix Visual Engine v3.5 
+   Professional Color-Coded & Wide Layout System
+   Global Secured Edition
+*/
+
 :root {
-    --main-bg: #f0f2f5;         
-    --glass-bg: rgba(255, 255, 255, 0.85); 
-    --accent: #2c3e50;          
-    --text-main: #333;          
-    --border-color: rgba(0, 0, 0, 0.08);
+    /* الألوان الأساسية */
+    --main-bg: #f4f7f9;
+    --glass-white: rgba(255, 255, 255, 0.92);
+    --border-soft: rgba(0, 0, 0, 0.05);
+    --text-dark: #1e293b;
+    --text-gray: #64748b;
+
+    /* ألوان الأقسام المخصصة */
+    --home-color: #2c3e50;      /* رمادي غامق احترافي */
+    --trade-color: #10b981;     /* أخضر زمردي (للتداول) */
+    --events-color: #f59e0b;    /* برتقالي ذهبي (للأحداث) */
+    --wallet-color: #3b82f6;    /* أزرق ملكي (للمحفظة) */
+    --admin-color: #ef4444;     /* أحمر (للأمن والتحكم) */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
     background-color: var(--main-bg);
-    background-image: url('logo.png'); /* ارفع صورتك باسم logo.png */
+    background-image: url('logo.png'); /* ارفع شعارك بهذا الاسم */
     background-repeat: no-repeat;
-    background-position: center;
-    background-size: 350px;
+    background-position: center 15%;
+    background-size: 260px;
     background-attachment: fixed;
-    margin: 0;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    font-family: 'Segoe UI', sans-serif;
-    transition: 0.5s;
+    transition: 0.5s ease;
 }
 
+/* الحاوية الواسعة - Wider Glass Container */
 .glass-container {
-    background: var(--glass-bg);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid var(--border-color);
-    border-radius: 30px;
-    padding: 25px;
-    width: 90%;
-    max-width: 420px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+    background: var(--glass-white);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid var(--border-soft);
+    border-radius: 40px;
+    padding: 40px;
+    width: 95%;
+    max-width: 500px; /* جعل المنصة أوسع */
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.06);
     position: relative;
     overflow: hidden;
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
 }
 
-/* نظام التبويبات */
-.tab-content {
-    display: none;
-    animation: fadeIn 0.4s ease-in-out;
+/* --- نظام تلوين الأقسام الاحترافي --- */
+
+.section-trade { border-top: 8px solid var(--trade-color); }
+.section-events { border-top: 8px solid var(--events-color); }
+.section-wallet { border-top: 8px solid var(--wallet-color); }
+
+/* --- عناصر الواجهة --- */
+
+.logo-text {
+    font-size: 28px;
+    font-weight: 800;
+    text-align: center;
+    color: var(--home-color);
+    letter-spacing: -1px;
+    margin-bottom: 25px;
 }
 
-.tab-content.active {
-    display: block;
+.logo-text span { color: var(--text-gray); font-weight: 300; }
+
+input, select {
+    width: 100%;
+    padding: 16px 20px;
+    margin-bottom: 15px;
+    border-radius: 18px;
+    border: 1px solid var(--border-soft);
+    background: rgba(255, 255, 255, 0.6);
+    font-size: 15px;
+    color: var(--text-dark);
+    outline: none;
+    transition: 0.3s;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+input:focus, select:focus {
+    border-color: var(--home-color);
+    box-shadow: 0 0 0 4px rgba(44, 62, 80, 0.08);
+    background: #fff;
 }
 
 .btn-primary {
     width: 100%;
-    padding: 14px;
-    background: var(--accent);
-    color: #fff;
+    padding: 18px;
+    background: var(--home-color);
+    color: white;
     border: none;
-    border-radius: 12px;
-    font-weight: 600;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 16px;
     cursor: pointer;
-    margin-top: 10px;
+    transition: 0.3s;
+    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
 }
 
-input, select {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border-radius: 10px;
-    border: 1px solid var(--border-color);
-    outline: none;
-    background: rgba(255,255,255,0.6);
+.btn-primary:active { transform: scale(0.96); }
+
+/* التبويبات والمحتوى */
+.tab-content { 
+    display: none; 
+    animation: slideIn 0.5s ease-out;
+    flex-grow: 1;
 }
 
-.logo { text-align: center; font-weight: bold; color: var(--accent); margin-bottom: 10px; }
-.logo span { font-weight: 100; color: #7f8c8d; }
-.version-text { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); font-size: 10px; color: #bdc3c7; cursor: pointer; }
+.tab-content.active { display: block; }
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- التذييل (Footer) - رقم الإصدار بعيد عن العمليات --- */
+.footer-info {
+    margin-top: auto;
+    padding-top: 40px;
+    text-align: center;
+}
+
+.version-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    color: #cbd5e1;
+    letter-spacing: 3px;
+    cursor: pointer;
+    padding: 10px;
+    transition: 0.3s;
+}
+
+.version-badge:hover { color: var(--text-gray); }
+
+/* أدوات مساعدة */
+.text-center { text-align: center; }
+.mt-20 { margin-top: 20px; }
