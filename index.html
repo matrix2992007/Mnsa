@@ -3,113 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMT INVESTMENT | التسجيل العالمي</title>
+    <title>AMT GLOBAL | Secure Access</title>
     <link rel="stylesheet" href="glass.css">
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="security.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="main-bg">
-    <div class="glass-container">
-        <h1 class="logo-text">AMT <span>INVESTMENT</span></h1>
-        <p style="text-align:center; font-size:13px; color:#64748b; margin-bottom:30px;">ابدأ استثمارك العالمي في بيئة آمنة ومشفره</p>
+    <div class="glass-container" style="max-width: 480px; padding: 40px;">
+        
+        <div style="display:flex; justify-content:center; gap:8px; margin-bottom:25px;">
+            <button onclick="changeLang('ar')" class="lang-btn">AR</button>
+            <button onclick="changeLang('en')" class="lang-btn">EN</button>
+            <button onclick="changeLang('id')" class="lang-btn">ID</button>
+            <button onclick="changeLang('ru')" class="lang-btn">RU</button>
+            <button onclick="changeLang('hi')" class="lang-btn">HI</button>
+        </div>
+
+        <h1 id="regTitle" class="logo-text">AMT <span>GLOBAL</span></h1>
+        <p id="regSub" style="text-align:center; font-size:12px; color:var(--text-gray); margin-bottom:30px;">نظام الاستثمار الرقمي الآمن والمشفر</p>
         
         <form id="registerForm">
-            <input type="text" id="regName" placeholder="الاسم الكامل (يمنع الرموز)" required>
+            <div class="input-group">
+                <input type="text" id="regName" placeholder="الاسم الكامل" required>
+            </div>
             
-            <div style="display:flex; gap:10px; margin-bottom:12px;">
-                <select id="countryCode" style="width:45%; font-size:13px;">
-                    <option value="+20">🇪🇬 مصر (+20)</option>
-                    <option value="+966">🇸🇦 السعودية (+966)</option>
-                    <option value="+971">🇦🇪 الإمارات (+971)</option>
-                    <option value="+964">🇮🇶 العراق (+964)</option>
-                    <option value="+965">🇰🇼 الكويت (+965)</option>
-                    <option value="+974">🇶🇦 قطر (+974)</option>
-                    <option value="+973">🇧🇭 البحرين (+973)</option>
-                    <option value="+962">🇯🇴 الأردن (+962)</option>
-                    <option value="+212">🇲🇦 المغرب (+212)</option>
-                    <option value="+213">🇩🇿 الجزائر (+213)</option>
-                    <option value="+216">🇹🇳 تونس (+216)</option>
-                    <option value="+218">🇱🇾 ليبيا (+218)</option>
-                    <option value="+44">🇬🇧 بريطانيا (+44)</option>
-                    <option value="+1">🇺🇸 أمريكا (+1)</option>
-                    <option value="+49">🇩🇪 ألمانيا (+49)</option>
-                    <option value="+33">🇫🇷 فرنسا (+33)</option>
-                    <option value="+90">🇹🇷 تركيا (+90)</option>
-                    <option value="+82">🇰🇷 كوريا الجنوبية (+82)</option>
-                    <option value="+81">🇯🇵 اليابان (+81)</option>
-                    <option value="+7">🇷🇺 روسيا (+7)</option>
-                    <option value="+34">🇪🇸 إسبانيا (+34)</option>
-                    <option value="+39">🇮🇹 إيطاليا (+39)</option>
-                    <option value="+212">🇲🇦 المغرب (+212)</option>
-                    </select>
+            <div style="display:flex; gap:8px; margin-bottom:15px;">
+                <input type="email" id="regEmail" placeholder="الجيميل للتحقق" required style="margin-bottom:0;">
+                <button type="button" onclick="sendOTP()" id="otpBtn" style="width:130px; background:var(--wallet-color); color:white; border:none; border-radius:12px; cursor:pointer; font-size:11px; font-weight:bold;">إرسال الكود</button>
+            </div>
+            
+            <input type="text" id="otpCode" placeholder="أدخل الكود (6 أرقام)" required style="display:none; border:2px solid var(--trade-color); animation: fadeIn 0.5s;">
+
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <select id="countryCode" style="width:45%; background:rgba(255,255,255,0.05); color:white; border-radius:12px;">
+                    <option value="+20">🇪🇬 مصر</option>
+                    <option value="+213">🇩🇿 الجزائر</option>
+                    <option value="+212">🇲🇦 المغرب</option>
+                    <option value="+62">🇮🇩 إندونيسيا</option>
+                    <option value="+92">🇵🇰 باكستان</option>
+                    <option value="+91">🇮🇳 الهند</option>
+                    <option value="+7">🇷🇺 روسيا</option>
+                    <option value="+966">🇸🇦 السعودية</option>
+                    <option value="+971">🇦🇪 الإمارات</option>
+                </select>
                 <input type="tel" id="regPhone" placeholder="رقم الهاتف" required style="margin-bottom:0;">
             </div>
 
-            <input type="password" id="regPass" placeholder="كلمة السر (A, a, 1, @)" required>
-            <p id="passError" style="font-size:10px; color:#ef4444; margin-bottom:10px; display:none; text-align:center;">
-                يجب أن تكون 8 خانات، تشمل حرف كبير وصغير ورقم ورمز.
-            </p>
+            <input type="password" id="regPass" placeholder="كلمة السر" required>
 
-            <button type="submit" class="btn-primary">إنشاء المحفظة المشفرة</button>
+            <button type="submit" id="submitBtn" class="btn-primary" style="display:none; background:var(--trade-color); margin-top:10px;">إنشاء الحساب وتفعيل الأمان</button>
         </form>
         
-        <div style="text-align:center; margin-top:25px;">
-            <p style="font-size:14px; color: #1e293b;">لديك حساب؟ <a href="login.html" style="color:#2c3e50; font-weight:bold; text-decoration:none;">تسجيل دخول</a></p>
+        <div class="text-center" style="margin-top:20px;">
+            <p id="haveAcc" style="font-size:13px; color:white;">لديك حساب بالفعل؟ <a href="login.html" style="color:var(--trade-color); font-weight:bold; text-decoration:none;">تسجيل دخول</a></p>
         </div>
 
         <div class="footer-info">
-            <p class="version-badge" onclick="triggerVault()">AMT GLOBAL v3.5.0</p>
+            <span class="version-badge">AMT NETWORK v4.5.0</span>
         </div>
     </div>
 
     <script>
-        // إعدادات Firebase
-        const firebaseConfig = {
-          apiKey: "AIzaSyAkz8kGNDOJ5caCIbdoXpvJBZgUbigjT5g",
-          databaseURL: "https://matrix-c2-default-rtdb.firebaseio.com",
-          projectId: "matrix-c2",
-        };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        let generatedOTP = "";
 
-        document.getElementById('registerForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const passInput = document.getElementById('regPass').value;
-            const errorText = document.getElementById('passError');
+        // دالة إرسال الكود عبر السيرفر الوسيط
+        async function sendOTP() {
+            const email = document.getElementById('regEmail').value;
+            if(!email.includes('@')) return alert("Please enter a valid Gmail");
+            
+            generatedOTP = Math.floor(100000 + Math.random() * 900000);
+            const btn = document.getElementById('otpBtn');
+            btn.innerText = "...";
+            btn.disabled = true;
 
-            // 1. التحقق من قوة كلمة السر (Regex Check)
-            if (!isPasswordStrong(passInput)) {
-                errorText.style.display = 'block';
-                return;
+            try {
+                // ملاحظة: الرابط ده بيتغير بعد ما ترفع ملف api/secure-gate.js على Vercel
+                const res = await fetch('/api/secure-gate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ type: 'send_otp', email: email, code: generatedOTP })
+                });
+
+                if(res.ok) {
+                    alert("✅ تم إرسال كود التحقق لبريدك الإلكتروني");
+                    document.getElementById('otpCode').style.display = 'block';
+                    document.getElementById('submitBtn').style.display = 'block';
+                }
+            } catch(e) {
+                alert("❌ فشل في إرسال الكود. تأكد من إعدادات السيرفر.");
+                btn.disabled = false;
+                btn.innerText = "إرسال الكود";
             }
-            errorText.style.display = 'none';
+        }
 
-            // 2. تنظيف وتجهيز البيانات
-            const cleanName = sanitizeInput(document.getElementById('regName').value);
-            const fullPhone = document.getElementById('countryCode').value + document.getElementById('regPhone').value;
-            const userKey = fullPhone.replace('+', '');
-            const uid = generateUID();
-
-            // 3. تشفير البيانات الحساسة قبل الإرسال (Matrix Encryption)
-            const encryptedPass = MatrixCrypto.encrypt(passInput);
-            const encryptedName = MatrixCrypto.encrypt(cleanName);
-
-            // 4. الرفع لقاعدة البيانات
-            firebase.database().ref('users/' + userKey).set({
-                uid: uid,
-                full_name: encryptedName, // مشفرة
-                phone: fullPhone,
-                password: encryptedPass, // مشفرة
-                balance: 0,
-                status: "Active",
-                tasks: ["انضم لقناة التوصيات الرسمية"],
-                joined_at: new Date().toISOString()
-            }).then(() => {
-                localStorage.setItem('userPhone', userKey);
-                alert("تم إنشاء حسابك بنجاح. بياناتك الآن مشفرة.");
-                window.location.href = "dashboard.html";
-            });
+        // نظام الترجمة اللحظية
+        const translations = {
+            ar: { title: "AMT <span>GLOBAL</span>", sub: "نظام الاستثمار الرقمي الآمن", name: "الاسم الكامل", email: "الجيميل للتحقق", btn: "إرسال الكود", phone: "رقم الهاتف", pass: "كلمة السر", have: "لديك حساب بالفعل؟", login: "تسجيل دخول" },
+            en: { title: "AMT <span>GLOBAL</span>", sub: "Secure Digital Investment System", name: "Full Name", email: "Verify Gmail", btn: "Send Code", phone: "Phone Number", pass: "Password", have: "Already have an account?", login: "Login" },
+            id: { title: "AMT <span>GLOBAL</span>", sub: "Sistem Investasi Digital Aman", name: "Nama Lengkap", email: "Verifikasi Gmail", btn: "Kirim Kode", phone: "Nomor Telepon", pass: "Kata Sandi", have: "Sudah punya akun?", login: "Masuk" },
+            ru: { title: "AMT <span>GLOBAL</span>", sub: "Безопасная цифровая система", name: "Полное имя", email: "Подтвердите Gmail", btn: "Отправить код", phone: "Номер телефона", pass: "Пароль", have: "Уже есть аккаунт?", login: "Войти" },
+            hi: { title: "AMT <span>GLOBAL</span>", sub: "सुरक्षित डिजिटल निवेश प्रणाली", name: "पूरा नाम", email: "जीमेल सत्यापित करें", btn: "कोड भेजें", phone: "फ़ोन नंबर", pass: "पासवर्ड", have: "क्या आपके पास पहले से खाता है?", login: "लॉग इन करें" }
         };
+
+        function changeLang(lang) {
+            const t = translations[lang];
+            document.getElementById('regTitle').innerHTML = t.title;
+            document.getElementById('regSub').innerText = t.sub;
+            document.getElementById('regName').placeholder = t.name;
+            document.getElementById('regEmail').placeholder = t.email;
+            document.getElementById('otpBtn').innerText = t.btn;
+            document.getElementById('regPhone').placeholder = t.phone;
+            document.getElementById('regPass').placeholder = t.pass;
+            document.getElementById('haveAcc').innerHTML = `${t.have} <a href="login.html" style="color:var(--trade-color); font-weight:bold; text-decoration:none;">${t.login}</a>`;
+            document.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+        }
     </script>
+
+    <style>
+        .lang-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 5px 10px; border-radius: 8px; cursor: pointer; font-size: 10px; transition: 0.3s; }
+        .lang-btn:hover { background: var(--trade-color); color: black; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </body>
 </html>
