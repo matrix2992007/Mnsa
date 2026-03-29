@@ -3,148 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMT | Matrix Dashboard</title>
+    <title>AMT | Investor Dashboard</title>
     <link rel="stylesheet" href="glass.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="security.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="main-bg">
-    <div id="main-container" class="glass-container wider-dash">
-        
-        <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <div>
-                <small style="color:var(--text-gray);">مرحباً بك، المستثمر</small>
-                <h3 id="displayUserName" style="margin:0; color:var(--home-color);">...</h3>
-                <small id="userUID" style="font-size:9px; color:var(--text-gray); font-family:monospace;"></small>
-            </div>
-            <div class="logo-small" style="font-weight:900; font-size:18px;">AMT <span>INV</span></div>
-        </header>
+<body class="main-bg" style="display: block; padding: 15px;">
 
-        <section id="home-tab" class="tab-content active">
-            <div style="background:var(--home-color); color:#fff; padding:30px; border-radius:25px; text-align:center; box-shadow:0 10px 20px rgba(0,0,0,0.1);">
-                <p style="font-size:14px; opacity:0.8;">إجمالي الرصيد المشفر</p>
-                <h1 id="userBalance" style="font-size:36px; margin:10px 0; font-family:monospace;">$0.00</h1>
-                <button onclick="window.location.href='https://t.me/l0_D_0'" class="btn-primary" style="background:var(--trade-color); border:none; margin-top:10px;">سحب فوري (تواصل)</button>
-            </div>
-            
-            <div style="margin-top:20px; display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <button onclick="window.location.href='deposit.html'" class="btn-primary" style="margin:0;">إيداع</button>
-                <button onclick="showTab('trade-tab')" class="btn-primary" style="margin:0; background:var(--text-gray);">تحويل</button>
-            </div>
-        </section>
-
-        <section id="trade-tab" class="tab-content">
-            <h3 style="color:var(--trade-color); margin-bottom:15px;"><i class="fas fa-chart-line"></i> مركز التداول السريع</h3>
-            <div style="background:rgba(16, 185, 129, 0.05); padding:20px; border-radius:20px; border:1px solid rgba(16, 185, 129, 0.1);">
-                <label style="font-size:12px; display:block; margin-bottom:8px;">من: USDT (TRC20)</label>
-                <input type="number" id="tradeAmount" placeholder="أدخل الكمية">
-                
-                <div style="text-align:center; margin:10px 0;"><i class="fas fa-exchange-alt" style="color:var(--trade-color); transform:rotate(90deg);"></i></div>
-                
-                <label style="font-size:12px; display:block; margin-bottom:8px;">إلى: عملة المنصة الذكية</label>
-                <select id="targetCurrency">
-                    <option value="BTC">Bitcoin (BTC)</option>
-                    <option value="ETH">Ethereum (ETH)</option>
-                    <option value="AMT">AMT Coin (Internal)</option>
-                </select>
-                <button class="btn-primary" style="background:var(--trade-color);" onclick="processTrade()">تأكيد عملية التحويل</button>
-            </div>
-        </section>
-
-        <section id="events-tab" class="tab-content">
-            <h3 style="color:var(--events-color); margin-bottom:15px;"><i class="fas fa-bullhorn"></i> الأحداث المباشرة</h3>
-            <div id="eventsList" style="display:grid; gap:10px;">
-                <div style="background:#fff; padding:15px; border-radius:15px; border-right:5px solid var(--events-color); box-shadow:0 5px 10px rgba(0,0,0,0.02);">
-                    <strong style="display:block; font-size:14px;">تم إطلاق البروتوكول v3.5</strong>
-                    <p style="font-size:12px; color:var(--text-gray); margin-top:5px;">أهلاً بك في النسخة الأحدث والأكثر أماناً من AMT.</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="wallet-tab" class="tab-content">
-            <h3 style="color:var(--wallet-color); margin-bottom:15px;"><i class="fas fa-wallet"></i> السجلات المالية</h3>
-            <div id="tasksContainer" style="display:grid; gap:10px;">
-                </div>
-        </section>
-
-        <nav style="position:absolute; bottom:0; left:0; width:100%; display:flex; justify-content:space-around; padding:15px 0; background:#fff; border-top:1px solid #eee; border-radius: 0 0 40px 40px;">
-            <div onclick="showTab('home-tab')" class="nav-item active" id="nav-home"><i class="fas fa-th-large"></i><br><small>الرئيسية</small></div>
-            <div onclick="showTab('trade-tab')" class="nav-item" id="nav-trade"><i class="fas fa-sync"></i><br><small>تداول</small></div>
-            <div onclick="showTab('events-tab')" class="nav-item" id="nav-events"><i class="fas fa-bolt"></i><br><small>أحداث</small></div>
-            <div onclick="showTab('wallet-tab')" class="nav-item" id="nav-wallet"><i class="fas fa-tasks"></i><br><small>مهام</small></div>
-        </nav>
-
-        <div class="footer-info">
-            <span class="version-badge" onclick="triggerVault()">BUILD PROTOCOL v3.5.0</span>
+    <div class="glass-container section-wallet" style="padding:20px; margin-bottom:15px;">
+        <p style="font-size:11px; color:var(--text-gray);">الرصيد المتاح للاستثمار</p>
+        <h2 style="font-size:35px; color:var(--wallet-color);">$<span id="userBalance">0.00</span></h2>
+        <div style="display:flex; gap:10px; margin-top:10px;">
+            <button onclick="showSection('depositSection')" class="btn-primary" style="background:var(--wallet-color); font-size:12px; height:35px;">إيداع +</button>
+            <button onclick="showSection('withdrawSection')" class="btn-primary" style="background:rgba(255,255,255,0.1); font-size:12px; height:35px;">سحب -</button>
         </div>
     </div>
 
+    <div id="plansSection" class="glass-container section-trade" style="padding:20px; margin-bottom:15px;">
+        <h3 style="color:var(--trade-color); margin-bottom:15px; font-size:16px;"><i class="fas fa-chart-line"></i> باقات الاستثمار المتاحة</h3>
+        <div id="plansList" style="display:grid; grid-template-columns: 1fr; gap:10px;">
+            </div>
+    </div>
+
+    <div id="depositSection" class="glass-container" style="display:none; padding:20px; margin-bottom:15px; border-top:3px solid var(--events-color);">
+        <h3 style="color:var(--events-color);"><i class="fas fa-university"></i> وسائل الدفع المتاحة</h3>
+        <div id="paymentMethods" style="margin-top:15px;">
+            </div>
+        <button onclick="showSection('plansSection')" style="background:none; border:none; color:var(--text-gray); margin-top:10px; font-size:12px;">إغلاق ×</button>
+    </div>
+
     <script>
-        const firebaseConfig = {
-          apiKey: "AIzaSyAkz8kGNDOJ5caCIbdoXpvJBZgUbigjT5g",
-          databaseURL: "https://matrix-c2-default-rtdb.firebaseio.com",
-          projectId: "matrix-c2",
-        };
+        const firebaseConfig = { apiKey: "AIzaSyAkz8kGNDOJ5caCIbdoXpvJBZgUbigjT5g", databaseURL: "https://matrix-c2-default-rtdb.firebaseio.com", projectId: "matrix-c2" };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-
-        const phone = localStorage.getItem('userPhone');
-        if(!phone) window.location.href = "login.html";
-
         const db = firebase.database();
-        const userRef = db.ref('users/' + phone);
+        const userKey = localStorage.getItem('userPhone');
 
-        // جلب وفك تشفير البيانات
-        userRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            if(data) {
-                // فك تشفير الاسم لعرضه
-                const realName = MatrixCrypto.decrypt(data.full_name);
-                document.getElementById('displayUserName').textContent = realName;
-                document.getElementById('userBalance').textContent = `$${data.balance || 0}`;
-                document.getElementById('userUID').textContent = "UID: " + data.id;
+        // 1. تحديث الرصيد
+        db.ref('users/' + userKey + '/balance').on('value', s => {
+            document.getElementById('userBalance').innerText = (s.val() || 0).toFixed(2);
+        });
 
-                // تحديث قائمة المهام
-                const taskBox = document.getElementById('tasksContainer');
-                taskBox.innerHTML = "";
-                if(data.tasks) {
-                    data.tasks.forEach(t => {
-                        taskBox.innerHTML += `<div style="background:#fff; padding:15px; border-radius:12px; border:1px solid #eee; display:flex; justify-content:space-between;">
-                            <span style="font-size:13px;">${t}</span>
-                            <i class="fas fa-check-circle" style="color:var(--wallet-color);"></i>
-                        </div>`;
-                    });
-                }
+        // 2. جلب الباقات والاشتراك
+        db.ref('settings/plans').on('value', s => {
+            const plans = s.val();
+            const list = document.getElementById('plansList');
+            list.innerHTML = "";
+            for(let id in plans) {
+                list.innerHTML += `
+                    <div style="background:rgba(255,255,255,0.03); padding:15px; border-radius:12px; border:1px solid rgba(0,255,136,0.2);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <b style="font-size:14px;">استثمار $${plans[id].price}</b>
+                                <p style="font-size:10px; color:var(--trade-color);">الربح المتوقع: $${plans[id].profit}</p>
+                            </div>
+                            <button onclick="buyPlan('${id}', ${plans[id].price})" class="btn-primary" style="width:80px; height:30px; font-size:11px; background:var(--trade-color); color:black;">اشترك</button>
+                        </div>
+                    </div>`;
             }
         });
 
-        function showTab(tabId) {
-            // إخفاء كل التبويبات
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            // إظهار التبويب المطلوب
-            document.getElementById(tabId).classList.add('active');
-            
-            // تغيير لون البوردر العلوي حسب القسم
-            const container = document.getElementById('main-container');
-            container.className = 'glass-container wider-dash';
-            if(tabId === 'trade-tab') container.classList.add('section-trade');
-            if(tabId === 'events-tab') container.classList.add('section-events');
-            if(tabId === 'wallet-tab') container.classList.add('section-wallet');
+        // 3. جلب وسائل الدفع يدوياً من الأدمن
+        db.ref('settings/payments').on('value', s => {
+            const methods = s.val();
+            const container = document.getElementById('paymentMethods');
+            container.innerHTML = "";
+            for(let key in methods) {
+                container.innerHTML += `
+                    <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; margin-bottom:8px;">
+                        <p style="font-size:10px; color:var(--text-gray);">${key}</p>
+                        <code style="font-size:11px; color:white; word-break:break-all;">${methods[key]}</code>
+                        <button onclick="navigator.clipboard.writeText('${methods[key]}'); alert('تم نسخ العنوان')" style="float:left; background:none; border:none; color:var(--events-color); font-size:10px;">نسخ</button>
+                        <div style="clear:both;"></div>
+                    </div>`;
+            }
+        });
+
+        function showSection(id) {
+            document.getElementById('depositSection').style.display = (id === 'depositSection') ? 'block' : 'none';
         }
 
-        function processTrade() {
-            const amount = document.getElementById('tradeAmount').value;
-            if(!amount || amount <= 0) return alert("يرجى إدخال مبلغ صحيح");
-            alert("طلب التحويل قيد المعالجة من قبل AMT Network");
+        function buyPlan(id, price) {
+            db.ref('users/' + userKey + '/balance').once('value', s => {
+                const bal = s.val() || 0;
+                if(bal >= price) {
+                    db.ref('users/' + userKey + '/balance').set(bal - price);
+                    alert("✅ تم الاشتراك في الباقة بنجاح!");
+                } else {
+                    alert("❌ رصيدك غير كافي. يرجى الإيداع أولاً.");
+                    showSection('depositSection');
+                }
+            });
         }
     </script>
-
-    <style>
-        .wider-dash { height: 90vh; }
-        .nav-item { cursor: pointer; text-align: center; color: var(--text-gray); font-size: 18px; transition: 0.3s; width: 25%; }
-        .nav-item i { margin-bottom: 4px; }
-        .nav-item:hover, .nav-item.active { color: var(--home-color); transform: translateY(-3px); }
-    </style>
 </body>
 </html>
