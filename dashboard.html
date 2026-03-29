@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMT INVESTMENT | لوحة التحكم</title>
+    <link rel="stylesheet" href="glass.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="security.js"></script>
+</head>
+<body class="main-bg dashboard-body">
+    <div class="glass-container wider">
+        <header class="dash-header">
+            <h1 class="logo">AMT <span>DASHBOARD</span></h1>
+            <div class="user-info">
+                <span id="displayUserName">جاري التحميل...</span>
+            </div>
+        </header>
+
+        <div class="balance-cards">
+            <div class="card gold-card">
+                <p>إجمالي الرصيد</p>
+                <h2 id="userBalance">$0.00</h2>
+            </div>
+            <div class="card silver-card">
+                <p>أرباح اليوم</p>
+                <h2 id="dailyProfit">$0.00</h2>
+            </div>
+        </div>
+
+        <div class="tasks-section">
+            <h3>المهام النشطة (إجباري)</h3>
+            <div class="task-item">
+                <p>انضم لقناة التوصيات الرسمية</p>
+                <a href="https://t.me/YOUR_CHANNEL_1" target="_blank" class="task-btn">انضمام</a>
+            </div>
+            <div class="task-item">
+                <p>متابعة قناة التحديثات</p>
+                <a href="https://t.me/YOUR_CHANNEL_2" target="_blank" class="task-btn">انضمام</a>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button onclick="window.location.href='deposit.html'" class="btn-primary deposit-btn">إيداع (Deposit)</button>
+            <button onclick="window.location.href='withdraw.html'" class="btn-secondary">سحب (Withdraw)</button>
+        </div>
+
+        <p class="version-text" onclick="triggerVault()">v1.0.8</p>
+    </div>
+
+    <script>
+        // كود جلب بيانات المستخدم وعرضها
+        const userPhone = localStorage.getItem('userPhone'); // بنخزن الفون وقت اللوجن
+
+        if(userPhone) {
+            const userRef = firebase.database().ref('users/' + userPhone);
+            userRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if(data) {
+                    document.getElementById('displayUserName').innerText = data.full_name;
+                    document.getElementById('userBalance').innerText = `$${data.balance || 0}`;
+                }
+            });
+        } else {
+            // لو مفيش بيانات يرجعه للتسجيل
+            window.location.href = 'register.html';
+        }
+    </script>
+</body>
+</html>
