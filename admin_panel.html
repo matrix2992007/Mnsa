@@ -2,35 +2,49 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>AMT | Master Admin</title>
+    <title>AMT | Master Admin v5.0.3</title>
     <link rel="stylesheet" href="glass.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="security.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="main-bg" style="display: block; padding: 20px;">
     
-    <h2 style="color:var(--admin-color); margin-bottom:20px;"><i class="fas fa-tools"></i> لوحة التحكم الكاملة</h2>
+    <h2 class="logo-text" style="color:var(--admin-color); margin-bottom:20px;">SYSTEM <span>CONTROL</span></h2>
 
     <div class="glass-container section-admin" style="padding:20px; margin-bottom:15px;">
-        <h4><i class="fas fa-robot"></i> إعدادات البوت والروابط</h4>
-        <input type="text" id="botToken" placeholder="أدخل توكن البوت (Telegram Token)">
-        <input type="text" id="botUsername" placeholder="يوزر البوت (بدون @)">
-        <button onclick="saveBot()" class="btn-primary" style="background:var(--admin-color);">حفظ إعدادات البوت</button>
+        <h4><i class="fab fa-telegram"></i> إعدادات البوت والربط</h4>
+        <input type="text" id="botToken" placeholder="أدخل توكن البوت هنا">
+        <input type="text" id="apiUrl" placeholder="رابط الـ API الخاص بك (Vercel/Heroku)">
+        <div style="display:flex; gap:10px;">
+            <button onclick="setupWebhook()" class="btn-primary" style="background:var(--admin-color); flex:2;">تفعيل الربط التلقائي ⚡</button>
+            <button onclick="checkBotStatus()" class="btn-primary" style="background:rgba(255,255,255,0.1); flex:1;">فحص</button>
+        </div>
     </div>
 
     <div class="glass-container" style="padding:20px; margin-bottom:15px; border-right:5px solid var(--events-color);">
-        <h4><i class="fas fa-wallet"></i> إضافة وسائل الإيداع يدوياً</h4>
-        <input type="text" id="payName" placeholder="اسم الوسيلة (مثلاً: USDT TRC20)">
-        <input type="text" id="payAddr" placeholder="العنوان أو المحفظة">
-        <button onclick="addPayment()" class="btn-primary" style="background:var(--events-color); color:black;">إضافة وسيلة دفع</button>
+        <h4><i class="fas fa-wallet"></i> عناوين الإيداع (محافظك)</h4>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <input type="text" id="methodName" placeholder="العملة (مثلاً: USDT TRC20)">
+            <input type="text" id="methodAddr" placeholder="العنوان الخاص بك">
+        </div>
+        <button onclick="addPaymentMethod()" class="btn-primary" style="background:var(--events-color); color:black;">إضافة وسيلة إيداع</button>
     </div>
 
     <div class="glass-container section-trade" style="padding:20px; margin-bottom:15px;">
-        <h4><i class="fas fa-plus"></i> إضافة باقات الاستثمار</h4>
-        <input type="number" id="pPrice" placeholder="سعر الباقة">
-        <input type="number" id="pProfit" placeholder="الربح المتوقع">
-        <button onclick="addPlan()" class="btn-primary" style="background:var(--trade-color); color:black;">إضافة الباقة للجمهور</button>
+        <h4><i class="fas fa-chart-pie"></i> إضافة باقة استثمار (5 بـ 15)</h4>
+        <div style="display:flex; gap:10px;">
+            <input type="number" id="pPrice" placeholder="سعر الدخول ($)">
+            <input type="number" id="pProfit" placeholder="الربح المتوقع ($)">
+            <button onclick="addNewPlan()" class="btn-primary" style="background:var(--trade-color); color:black;">نشر الباقة</button>
+        </div>
+    </div>
+
+    <div class="glass-container section-wallet" style="padding:20px;">
+        <h4><i class="fas fa-users-cog"></i> التحكم في أرصدة المستثمرين</h4>
+        <div id="usersContainer" style="margin-top:15px;">
+            </div>
     </div>
 
     <script>
@@ -38,22 +52,57 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        function saveBot() {
+        // 1. تفعيل Webhook البوت بضغطة زر
+        async function setupWebhook() {
             const token = document.getElementById('botToken').value;
-            const user = document.getElementById('botUsername').value;
-            db.ref('settings/bot').set({ token, user }).then(() => alert("✅ تم حفظ البوت"));
+            const url = document.getElementById('apiUrl').value;
+            if(!token || !url) return alert("أدخل التوكن ورابط الـ API أولاً!");
+
+            const res = await fetch(`https://api.telegram.org/bot${token}/setWebhook?url=${url}/api/bot`);
+            const data = await res.json();
+            if(data.ok) {
+                db.ref('settings/bot').set({ token, active: true });
+                alert("✅ تم ربط البوت بالموقع بنجاح!");
+            } else {
+                alert("❌ فشل الربط: " + data.description);
+            }
         }
 
-        function addPayment() {
-            const name = document.getElementById('payName').value;
-            const addr = document.getElementById('payAddr').value;
-            db.ref('settings/payments/' + name).set(addr).then(() => alert("✅ تمت إضافة وسيلة الدفع"));
+        // 2. إضافة وسيلة إيداع
+        function addPaymentMethod() {
+            const name = document.getElementById('methodName').value;
+            const addr = document.getElementById('methodAddr').value;
+            db.ref('settings/payments/' + name).set(addr).then(() => alert("✅ تمت إضافة المحفظة"));
         }
 
-        function addPlan() {
+        // 3. إضافة باقة
+        function addNewPlan() {
             const price = document.getElementById('pPrice').value;
             const profit = document.getElementById('pProfit').value;
-            db.ref('settings/plans').push({ price, profit }).then(() => alert("✅ تمت إضافة الباقة"));
+            db.ref('settings/plans').push({ price, profit }).then(() => alert("✅ تم نشر الباقة"));
+        }
+
+        // 4. عرض المستخدمين وتغيير رصيدهم
+        db.ref('users').on('value', s => {
+            const users = s.val();
+            const container = document.getElementById('usersContainer');
+            container.innerHTML = "";
+            for(let id in users) {
+                const name = MatrixCrypto.decrypt(users[id].full_name);
+                container.innerHTML += `
+                <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:12px;">${name} (${id})</span>
+                    <div style="display:flex; gap:5px; align-items:center;">
+                        <b style="color:var(--trade-color);">$${(users[id].balance || 0).toFixed(2)}</b>
+                        <button onclick="modBal('${id}', 10)" style="background:green; color:white; border:none; border-radius:5px;">+10</button>
+                        <button onclick="modBal('${id}', -10)" style="background:red; color:white; border:none; border-radius:5px;">-10</button>
+                    </div>
+                </div>`;
+            }
+        });
+
+        function modBal(id, amt) {
+            db.ref('users/'+id+'/balance').transaction(b => (b || 0) + amt);
         }
     </script>
 </body>
