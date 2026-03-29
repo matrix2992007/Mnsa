@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>AMT | Admin Matrix Control</title>
+    <link rel="stylesheet" href="glass.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    </head>
+<body class="main-bg">
+    <div class="glass-container wider admin-box">
+        <h1 class="logo">MATRIX <span>CONTROL</span></h1>
+        
+        <div class="admin-section">
+            <h3>إضافة رصيد لمستخدم</h3>
+            <input type="text" id="targetPhone" placeholder="رقم هاتف المستخدم (بدون +)">
+            <input type="number" id="addAmount" placeholder="المبلغ المراد إضافته ($)">
+            <button onclick="updateBalance()" class="btn-primary">تحديث الرصيد فوراً</button>
+        </div>
+
+        <hr>
+
+        <div class="admin-section">
+            <h3>تحديث محافظ الشبكات</h3>
+            <select id="adminNetSelect">
+                <option value="TRC20">TRC20</option>
+                <option value="ERC20">ERC20</option>
+                <option value="BEP20">BEP20</option>
+                <option value="SOL">SOL</option>
+                <option value="POLYGON">POLYGON</option>
+            </select>
+            <textarea id="walletsList" placeholder="ضع الـ 10 عناوين هنا.. عنوان في كل سطر" rows="5"></textarea>
+            <button onclick="saveWallets()" class="btn-secondary">حفظ المحافظ</button>
+        </div>
+
+        <p class="footer-text">نظام AMT الاستثماري - لوحة الأدمن V1.0.8</p>
+    </div>
+
+    <script>
+        // إعدادات الفايربيز (نفس اللي بعتها يا يوسف)
+        const firebaseConfig = {
+          apiKey: "AIzaSyAkz8kGNDOJ5caCIbdoXpvJBZgUbigjT5g",
+          databaseURL: "https://matrix-c2-default-rtdb.firebaseio.com",
+          projectId: "matrix-c2",
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        // 1. وظيفة تحديث رصيد المستخدم
+        function updateBalance() {
+            const phone = document.getElementById('targetPhone').value;
+            const amount = parseFloat(document.getElementById('addAmount').value);
+
+            if(!phone || isNaN(amount)) return alert("يرجى إدخال بيانات صحيحة");
+
+            const userRef = firebase.database().ref('users/' + phone);
+            userRef.once('value').then((snapshot) => {
+                if(snapshot.exists()) {
+                    let currentBalance = snapshot.val().balance || 0;
+                    userRef.update({ balance: currentBalance + amount });
+                    alert(`تمت إضافة $${amount} بنجاح لحساب ${phone}`);
+                } else {
+                    alert("المستخدم غير موجود!");
+                }
+            });
+        }
+
+        // 2. وظيفة حفظ المحافظ الـ 50
+        function saveWallets() {
+            const net = document.getElementById('adminNetSelect').value;
+            const list = document.getElementById('walletsList').value.split('\n').filter(addr => addr.trim() !== "");
+            
+            if(list.length === 0) return alert("أدخل العناوين أولاً");
+
+            firebase.database().ref('wallets/' + net).set(list).then(() => {
+                alert(`تم حفظ ${list.length} محفظة لشبكة ${net}`);
+            });
+        }
+    </script>
+
+    <style>
+        .admin-box { max-width: 600px; text-align: right; }
+        .admin-section { margin: 20px 0; padding: 15px; background: rgba(0,0,0,0.02); border-radius: 15px; }
+        textarea { width: 100%; margin-top: 10px; padding: 10px; border-radius: 10px; border: 1px solid #ddd; }
+        hr { border: 0; border-top: 1px solid rgba(0,0,0,0.1); margin: 20px 0; }
+    </style>
+</body>
+</html>
