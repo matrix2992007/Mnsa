@@ -2,49 +2,53 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>AMT | Master Admin v5.0.3</title>
+    <title>AMT | Master Admin Control</title>
     <link rel="stylesheet" href="glass.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="security.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { display: block; padding: 20px; overflow-y: auto; }
+        .admin-card { background: rgba(255,255,255,0.05); border-radius: 15px; padding: 15px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); }
+        h4 { color: var(--admin-color); margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
+        .user-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .btn-small { padding: 5px 10px; font-size: 10px; border-radius: 5px; cursor: pointer; border: none; }
+    </style>
 </head>
-<body class="main-bg" style="display: block; padding: 20px;">
-    
-    <h2 class="logo-text" style="color:var(--admin-color); margin-bottom:20px;">SYSTEM <span>CONTROL</span></h2>
+<body class="main-bg">
 
-    <div class="glass-container section-admin" style="padding:20px; margin-bottom:15px;">
-        <h4><i class="fab fa-telegram"></i> إعدادات البوت والربط</h4>
-        <input type="text" id="botToken" placeholder="أدخل توكن البوت هنا">
-        <input type="text" id="apiUrl" placeholder="رابط الـ API الخاص بك (Vercel/Heroku)">
-        <div style="display:flex; gap:10px;">
-            <button onclick="setupWebhook()" class="btn-primary" style="background:var(--admin-color); flex:2;">تفعيل الربط التلقائي ⚡</button>
-            <button onclick="checkBotStatus()" class="btn-primary" style="background:rgba(255,255,255,0.1); flex:1;">فحص</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2 class="logo-text">AMT <span>MASTER</span></h2>
+        <div id="stats" style="display:flex; gap:10px;">
+            <span class="version-badge" id="totalUsersCount">المستخدمين: 0</span>
+            <span class="version-badge" id="pendingWithdrawCount" style="background:red;">السحوبات: 0</span>
         </div>
     </div>
 
-    <div class="glass-container" style="padding:20px; margin-bottom:15px; border-right:5px solid var(--events-color);">
-        <h4><i class="fas fa-wallet"></i> عناوين الإيداع (محافظك)</h4>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <input type="text" id="methodName" placeholder="العملة (مثلاً: USDT TRC20)">
-            <input type="text" id="methodAddr" placeholder="العنوان الخاص بك">
-        </div>
-        <button onclick="addPaymentMethod()" class="btn-primary" style="background:var(--events-color); color:black;">إضافة وسيلة إيداع</button>
+    <div class="admin-card">
+        <h4><i class="fas fa-users"></i> التحكم في المستثمرين</h4>
+        <div id="usersList">جاري جلب البيانات...</div>
     </div>
 
-    <div class="glass-container section-trade" style="padding:20px; margin-bottom:15px;">
-        <h4><i class="fas fa-chart-pie"></i> إضافة باقة استثمار (5 بـ 15)</h4>
-        <div style="display:flex; gap:10px;">
-            <input type="number" id="pPrice" placeholder="سعر الدخول ($)">
-            <input type="number" id="pProfit" placeholder="الربح المتوقع ($)">
-            <button onclick="addNewPlan()" class="btn-primary" style="background:var(--trade-color); color:black;">نشر الباقة</button>
-        </div>
+    <div class="admin-card">
+        <h4><i class="fas fa-hand-holding-usd"></i> طلبات السحب (الجزائر/مصر/عالمي)</h4>
+        <div id="withdrawList">لا يوجد طلبات معلقة حالياً</div>
     </div>
 
-    <div class="glass-container section-wallet" style="padding:20px;">
-        <h4><i class="fas fa-users-cog"></i> التحكم في أرصدة المستثمرين</h4>
-        <div id="usersContainer" style="margin-top:15px;">
-            </div>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+        <div class="admin-card">
+            <h4><i class="fas fa-plus-circle"></i> إضافة باقة</h4>
+            <input type="number" id="planPrice" placeholder="سعر الباقة">
+            <input type="number" id="planProfit" placeholder="الربح المتوقع">
+            <button onclick="addPlan()" class="btn-primary" style="background:var(--trade-color); color:black;">نشر الباقة</button>
+        </div>
+        <div class="admin-card">
+            <h4><i class="fas fa-university"></i> وسائل الإيداع</h4>
+            <input type="text" id="payName" placeholder="الوسيلة (مثلاً: CCP)">
+            <input type="text" id="payVal" placeholder="العنوان أو الرقم">
+            <button onclick="addPayment()" class="btn-primary" style="background:var(--events-color); color:black;">حفظ الوسيلة</button>
+        </div>
     </div>
 
     <script>
@@ -52,57 +56,69 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // 1. تفعيل Webhook البوت بضغطة زر
-        async function setupWebhook() {
-            const token = document.getElementById('botToken').value;
-            const url = document.getElementById('apiUrl').value;
-            if(!token || !url) return alert("أدخل التوكن ورابط الـ API أولاً!");
-
-            const res = await fetch(`https://api.telegram.org/bot${token}/setWebhook?url=${url}/api/bot`);
-            const data = await res.json();
-            if(data.ok) {
-                db.ref('settings/bot').set({ token, active: true });
-                alert("✅ تم ربط البوت بالموقع بنجاح!");
-            } else {
-                alert("❌ فشل الربط: " + data.description);
-            }
-        }
-
-        // 2. إضافة وسيلة إيداع
-        function addPaymentMethod() {
-            const name = document.getElementById('methodName').value;
-            const addr = document.getElementById('methodAddr').value;
-            db.ref('settings/payments/' + name).set(addr).then(() => alert("✅ تمت إضافة المحفظة"));
-        }
-
-        // 3. إضافة باقة
-        function addNewPlan() {
-            const price = document.getElementById('pPrice').value;
-            const profit = document.getElementById('pProfit').value;
-            db.ref('settings/plans').push({ price, profit }).then(() => alert("✅ تم نشر الباقة"));
-        }
-
-        // 4. عرض المستخدمين وتغيير رصيدهم
+        // 1. جلب المستخدمين وتحديث الأرصدة
         db.ref('users').on('value', s => {
-            const users = s.val();
-            const container = document.getElementById('usersContainer');
+            const users = s.val() || {};
+            const container = document.getElementById('usersList');
+            document.getElementById('totalUsersCount').innerText = "المستخدمين: " + Object.keys(users).length;
             container.innerHTML = "";
             for(let id in users) {
                 const name = MatrixCrypto.decrypt(users[id].full_name);
                 container.innerHTML += `
-                <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-size:12px;">${name} (${id})</span>
+                <div class="user-row">
+                    <div style="font-size:11px;"><b>${name}</b><br><small>${id}</small></div>
                     <div style="display:flex; gap:5px; align-items:center;">
-                        <b style="color:var(--trade-color);">$${(users[id].balance || 0).toFixed(2)}</b>
-                        <button onclick="modBal('${id}', 10)" style="background:green; color:white; border:none; border-radius:5px;">+10</button>
-                        <button onclick="modBal('${id}', -10)" style="background:red; color:white; border:none; border-radius:5px;">-10</button>
+                        <input type="number" id="bal_${id}" value="${users[id].balance}" style="width:60px; margin:0; padding:5px; font-size:10px;">
+                        <button onclick="setBal('${id}')" class="btn-small" style="background:var(--trade-color);"><i class="fas fa-save"></i></button>
                     </div>
                 </div>`;
             }
         });
 
-        function modBal(id, amt) {
-            db.ref('users/'+id+'/balance').transaction(b => (b || 0) + amt);
+        // 2. إدارة طلبات السحب
+        db.ref('withdraw_requests').on('value', s => {
+            const reqs = s.val() || {};
+            const container = document.getElementById('withdrawList');
+            const pending = Object.keys(reqs).filter(k => reqs[k].status === "pending");
+            document.getElementById('pendingWithdrawCount').innerText = "السحوبات: " + pending.length;
+            container.innerHTML = "";
+            pending.forEach(id => {
+                container.innerHTML += `
+                <div style="background:rgba(255,0,0,0.1); padding:10px; border-radius:10px; margin-bottom:8px;">
+                    <p style="font-size:11px;">المستثمر: ${reqs[id].user} | المبلغ: <b>$${reqs[id].amount}</b></p>
+                    <p style="font-size:10px; color:#aaa;">المحفظة: ${reqs[id].address}</p>
+                    <div style="display:flex; gap:5px; margin-top:5px;">
+                        <button onclick="approve('${id}', '${reqs[id].user}', ${reqs[id].amount})" class="btn-small" style="background:green; color:white;">قبول وتأكيد السحب ✅</button>
+                        <button onclick="db.ref('withdraw_requests/${id}').remove()" class="btn-small" style="background:#444; color:white;">رفض الطلب ❌</button>
+                    </div>
+                </div>`;
+            });
+        });
+
+        function setBal(id) {
+            const val = parseFloat(document.getElementById('bal_'+id).value);
+            db.ref('users/'+id+'/balance').set(val);
+            alert("تم تحديث الرصيد!");
+        }
+
+        function approve(reqId, userId, amt) {
+            db.ref('users/'+userId+'/balance').transaction(b => (b || 0) - amt);
+            db.ref('withdraw_requests/'+reqId+'/status').set('approved');
+            alert("تم خصم الرصيد وتأكيد العملية بنجاح!");
+        }
+
+        function addPlan() {
+            const p = document.getElementById('planPrice').value;
+            const r = document.getElementById('planProfit').value;
+            db.ref('settings/plans').push({ price: p, profit: r });
+            alert("تم نشر الباقة بنجاح!");
+        }
+
+        function addPayment() {
+            const n = document.getElementById('payName').value;
+            const v = document.getElementById('payVal').value;
+            db.ref('settings/payments/'+n).set(v);
+            alert("تمت إضافة وسيلة الإيداع!");
         }
     </script>
 </body>
