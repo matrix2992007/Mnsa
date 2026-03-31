@@ -2,53 +2,61 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>AMT | Master Admin Control</title>
+    <title>AMT | Master Admin Control v9.0</title>
     <link rel="stylesheet" href="glass.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="security.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { display: block; padding: 20px; overflow-y: auto; }
-        .admin-card { background: rgba(255,255,255,0.05); border-radius: 15px; padding: 15px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); }
-        h4 { color: var(--admin-color); margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
-        .user-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .btn-small { padding: 5px 10px; font-size: 10px; border-radius: 5px; cursor: pointer; border: none; }
+        body { display: block; padding: 15px; overflow-y: auto; background: #0a0a0a; color: #fff; }
+        .stat-card { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 15px; }
+        .grid-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        h4 { border-bottom: 1px solid #b2ff59; padding-bottom: 5px; color: #b2ff59; font-size: 14px; margin-bottom: 15px; }
+        .user-row { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
+        .chat-alert { background: #0088cc; color: #fff; padding: 2px 8px; border-radius: 20px; font-size: 9px; }
     </style>
 </head>
-<body class="main-bg">
+<body>
 
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
         <h2 class="logo-text">AMT <span>MASTER</span></h2>
-        <div id="stats" style="display:flex; gap:10px;">
-            <span class="version-badge" id="totalUsersCount">المستخدمين: 0</span>
-            <span class="version-badge" id="pendingWithdrawCount" style="background:red;">السحوبات: 0</span>
+        <a href="https://t.me/l_I_Z_N" target="_blank" style="color:#0088cc; text-decoration:none; font-size:12px;"><i class="fab fa-telegram"></i> @l_I_Z_N</a>
+    </div>
+
+    <div class="grid-stats">
+        <div class="stat-card">
+            <p style="font-size:10px; opacity:0.6;">إجمالي المستثمرين</p>
+            <h3 id="totalUsers">0</h3>
+        </div>
+        <div class="stat-card">
+            <p style="font-size:10px; opacity:0.6;">طلبات سحب معلقة</p>
+            <h3 id="pendingWd" style="color:#ff5252;">0</h3>
         </div>
     </div>
 
-    <div class="admin-card">
-        <h4><i class="fas fa-users"></i> التحكم في المستثمرين</h4>
-        <div id="usersList">جاري جلب البيانات...</div>
+    <div class="stat-card">
+        <h4><i class="fas fa-chart-pie"></i> تحليل وسائل الإيداع (عدد النقرات)</h4>
+        <div id="paymentStats" style="display:flex; flex-wrap:wrap; gap:10px;">
+            </div>
     </div>
 
-    <div class="admin-card">
-        <h4><i class="fas fa-hand-holding-usd"></i> طلبات السحب (الجزائر/مصر/عالمي)</h4>
-        <div id="withdrawList">لا يوجد طلبات معلقة حالياً</div>
+    <div class="stat-card">
+        <h4><i class="fas fa-layer-group"></i> الباقات النشطة والمشتركين</h4>
+        <div id="plansStats">
+            </div>
     </div>
 
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-        <div class="admin-card">
-            <h4><i class="fas fa-plus-circle"></i> إضافة باقة</h4>
-            <input type="number" id="planPrice" placeholder="سعر الباقة">
-            <input type="number" id="planProfit" placeholder="الربح المتوقع">
-            <button onclick="addPlan()" class="btn-primary" style="background:var(--trade-color); color:black;">نشر الباقة</button>
+    <div class="stat-card">
+        <h4><i class="fas fa-comments"></i> مركز الدعم والشات المباشر</h4>
+        <div id="adminChats" style="max-height:300px; overflow-y:auto;">
+            <p style="font-size:11px; opacity:0.5;">لا يوجد محادثات نشطة حالياً...</p>
         </div>
-        <div class="admin-card">
-            <h4><i class="fas fa-university"></i> وسائل الإيداع</h4>
-            <input type="text" id="payName" placeholder="الوسيلة (مثلاً: CCP)">
-            <input type="text" id="payVal" placeholder="العنوان أو الرقم">
-            <button onclick="addPayment()" class="btn-primary" style="background:var(--events-color); color:black;">حفظ الوسيلة</button>
-        </div>
+    </div>
+
+    <div class="stat-card">
+        <h4><i class="fas fa-user-edit"></i> إدارة الحسابات والأرصدة</h4>
+        <div id="usersList"></div>
     </div>
 
     <script>
@@ -56,69 +64,92 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // 1. جلب المستخدمين وتحديث الأرصدة
+        // --- 1. تحديث إحصائيات المستخدمين ---
         db.ref('users').on('value', s => {
             const users = s.val() || {};
-            const container = document.getElementById('usersList');
-            document.getElementById('totalUsersCount').innerText = "المستخدمين: " + Object.keys(users).length;
-            container.innerHTML = "";
+            document.getElementById('totalUsers').innerText = Object.keys(users).length;
+            
+            const list = document.getElementById('usersList');
+            list.innerHTML = "";
             for(let id in users) {
                 const name = MatrixCrypto.decrypt(users[id].full_name);
-                container.innerHTML += `
-                <div class="user-row">
-                    <div style="font-size:11px;"><b>${name}</b><br><small>${id}</small></div>
-                    <div style="display:flex; gap:5px; align-items:center;">
-                        <input type="number" id="bal_${id}" value="${users[id].balance}" style="width:60px; margin:0; padding:5px; font-size:10px;">
-                        <button onclick="setBal('${id}')" class="btn-small" style="background:var(--trade-color);"><i class="fas fa-save"></i></button>
-                    </div>
-                </div>`;
+                list.innerHTML += `
+                    <div class="user-row">
+                        <div style="font-size:10px;"><b>${name}</b><br><small>${id}</small></div>
+                        <div style="display:flex; gap:5px;">
+                            <input type="number" id="bal_${id}" value="${users[id].balance}" style="width:50px; background:#222; color:#fff; border:1px solid #444; border-radius:5px; padding:2px;">
+                            <button onclick="updateBalance('${id}')" style="background:#b2ff59; border:none; border-radius:5px; padding:5px; color:#000;"><i class="fas fa-save"></i></button>
+                        </div>
+                    </div>`;
             }
         });
 
-        // 2. إدارة طلبات السحب
-        db.ref('withdraw_requests').on('value', s => {
-            const reqs = s.val() || {};
-            const container = document.getElementById('withdrawList');
-            const pending = Object.keys(reqs).filter(k => reqs[k].status === "pending");
-            document.getElementById('pendingWithdrawCount').innerText = "السحوبات: " + pending.length;
+        // --- 2. تحديث إحصائيات وسائل الدفع ---
+        db.ref('settings/payments').on('value', s => {
+            const pays = s.val() || {};
+            const container = document.getElementById('paymentStats');
             container.innerHTML = "";
-            pending.forEach(id => {
+            for(let name in pays) {
                 container.innerHTML += `
-                <div style="background:rgba(255,0,0,0.1); padding:10px; border-radius:10px; margin-bottom:8px;">
-                    <p style="font-size:11px;">المستثمر: ${reqs[id].user} | المبلغ: <b>$${reqs[id].amount}</b></p>
-                    <p style="font-size:10px; color:#aaa;">المحفظة: ${reqs[id].address}</p>
-                    <div style="display:flex; gap:5px; margin-top:5px;">
-                        <button onclick="approve('${id}', '${reqs[id].user}', ${reqs[id].amount})" class="btn-small" style="background:green; color:white;">قبول وتأكيد السحب ✅</button>
-                        <button onclick="db.ref('withdraw_requests/${id}').remove()" class="btn-small" style="background:#444; color:white;">رفض الطلب ❌</button>
-                    </div>
-                </div>`;
-            });
+                    <div style="background:rgba(255,255,255,0.05); padding:8px; border-radius:10px; font-size:10px; border-bottom:2px solid #0088cc;">
+                        <b>${name}</b>: <span style="color:#b2ff59;">${pays[name].useCount || 0} طلب</span>
+                    </div>`;
+            }
         });
 
-        function setBal(id) {
+        // --- 3. إحصائيات الباقات ---
+        db.ref('settings/plans').on('value', s => {
+            const plans = s.val() || {};
+            const container = document.getElementById('plansStats');
+            container.innerHTML = "";
+            for(let id in plans) {
+                container.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:5px; background:rgba(0,0,0,0.2); padding:8px; border-radius:8px;">
+                        <span>باقة $${plans[id].price}</span>
+                        <span style="color:#b2ff59;">المشتركين: ${plans[id].subscribers || 0} مستثمر</span>
+                    </div>`;
+            }
+        });
+
+        // --- 4. إدارة الشات ---
+        db.ref('chats').on('value', s => {
+            const chats = s.val() || {};
+            const container = document.getElementById('adminChats');
+            container.innerHTML = "";
+            for(let uid in chats) {
+                const lastMsg = Object.values(chats[uid]).pop();
+                container.innerHTML += `
+                    <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:10px; margin-bottom:8px;">
+                        <div style="display:flex; justify-content:space-between;">
+                            <small style="color:#b2ff59;">ID: ${uid}</small>
+                            <span class="chat-alert">رسالة جديدة</span>
+                        </div>
+                        <p style="font-size:11px; margin:5px 0;">${lastMsg.text}</p>
+                        <div style="display:flex; gap:5px;">
+                            <input type="text" id="reply_${uid}" placeholder="اكتب ردك هنا..." style="flex:1; background:#000; color:#fff; border:1px solid #333; padding:5px; border-radius:5px; font-size:11px;">
+                            <button onclick="sendReply('${uid}')" style="background:#0088cc; color:#fff; border:none; border-radius:5px; padding:5px 15px;">رد</button>
+                        </div>
+                    </div>`;
+            }
+        });
+
+        // وظائف الأزرار
+        function updateBalance(id) {
             const val = parseFloat(document.getElementById('bal_'+id).value);
             db.ref('users/'+id+'/balance').set(val);
-            alert("تم تحديث الرصيد!");
+            alert("✅ تم تحديث الرصيد بنجاح!");
         }
 
-        function approve(reqId, userId, amt) {
-            db.ref('users/'+userId+'/balance').transaction(b => (b || 0) - amt);
-            db.ref('withdraw_requests/'+reqId+'/status').set('approved');
-            alert("تم خصم الرصيد وتأكيد العملية بنجاح!");
+        function sendReply(uid) {
+            const txt = document.getElementById('reply_'+uid).value;
+            if(!txt) return;
+            db.ref('chats/'+uid).push({ sender: "Admin", text: txt, time: new Date().toLocaleTimeString() });
+            document.getElementById('reply_'+uid).value = "";
+            alert("تم إرسال الرد!");
         }
 
-        function addPlan() {
-            const p = document.getElementById('planPrice').value;
-            const r = document.getElementById('planProfit').value;
-            db.ref('settings/plans').push({ price: p, profit: r });
-            alert("تم نشر الباقة بنجاح!");
-        }
-
-        function addPayment() {
-            const n = document.getElementById('payName').value;
-            const v = document.getElementById('payVal').value;
-            db.ref('settings/payments/'+n).set(v);
-            alert("تمت إضافة وسيلة الإيداع!");
+        function addPayment(n, v) {
+            db.ref('settings/payments/'+n).set({ address: v, useCount: 0 });
         }
     </script>
 </body>
