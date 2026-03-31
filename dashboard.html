@@ -3,90 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMT | Dashboard</title>
+    <title>AMT | لوحة التحكم</title>
     <link rel="stylesheet" href="glass.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="security.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .tab-content { display: none; padding-bottom: 80px; }
-        .active-tab { display: block; animation: fadeIn 0.5s; }
-        .nav-btn { background:none; border:none; color:var(--text-gray); font-size:20px; transition:0.3s; }
-        .nav-btn.active { color:var(--trade-color); transform: scale(1.2); }
-        @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+        .tab-content { display: none; animation: slideUp 0.4s ease; padding-bottom: 100px; }
+        .active-tab { display: block; }
+        .nav-bar { position: fixed; bottom: 20px; left: 5%; width: 90%; height: 70px; background: rgba(0,0,0,0.8); backdrop-filter: blur(15px); border-radius: 25px; display: flex; justify-content: space-around; align-items: center; z-index: 1000; border: 1px solid rgba(178,255,89,0.2); }
+        .nav-item { color: #888; font-size: 22px; cursor: pointer; transition: 0.3s; }
+        .nav-item.active { color: #b2ff59; transform: translateY(-5px); text-shadow: 0 0 10px #b2ff59; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .plan-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; margin-bottom: 15px; }
     </style>
 </head>
-<body class="main-bg" style="display:block; padding:15px;">
+<body class="main-bg" style="display:block; padding:20px;">
 
-    <div class="glass-container" style="position:fixed; bottom:15px; left:5%; width:90%; height:65px; display:flex; justify-content:space-around; align-items:center; z-index:1000; border-radius:25px; border:1px solid rgba(255,255,255,0.1);">
-        <button onclick="showTab('home', this)" class="nav-btn active"><i class="fas fa-home"></i></button>
-        <button onclick="showTab('trade', this)" class="nav-btn"><i class="fas fa-chart-line"></i></button>
-        <button onclick="showTab('exchange', this)" class="nav-btn"><i class="fas fa-sync-alt"></i></button>
-        <button onclick="showTab('wallet', this)" class="nav-btn"><i class="fas fa-wallet"></i></button>
+    <div class="glass-container" style="padding:20px; margin-bottom:20px; border-right: 4px solid #b2ff59;">
+        <h3 id="userNameDisplay" style="font-size:18px;">جاري التعرف عليك...</h3>
+        <p style="font-size:11px; color:#aaa;">رصيدك المتوفر للاستثمار:</p>
+        <h2 style="font-size:35px; color:#fff;">$<span id="userBalance">0.00</span></h2>
     </div>
 
     <div id="home" class="tab-content active-tab">
-        <div class="glass-container section-wallet" style="padding:20px; margin-bottom:15px;">
-            <p style="font-size:11px; color:var(--text-gray);">الرصيد الكلي</p>
-            <h2 style="font-size:32px;">$<span id="mainBal">0.00</span></h2>
-        </div>
-        <div class="glass-container section-trade" style="padding:20px;">
-            <h3 style="font-size:16px; margin-bottom:15px;"><i class="fas fa-bolt"></i> باقات الاستثمار المتاحة</h3>
-            <div id="plansList"></div>
-        </div>
+        <h4 style="margin-bottom:15px; color:#b2ff59;"><i class="fas fa-chart-pie"></i> خطط الاستثمار النشطة</h4>
+        <div id="plansList"></div>
     </div>
 
-    <div id="trade" class="tab-content">
+    <div id="deposit" class="tab-content">
         <div class="glass-container" style="padding:20px;">
-            <h3 style="color:var(--trade-color);">منصة التداول الحي</h3>
-            <div style="background:rgba(0,0,0,0.4); border-radius:15px; padding:15px; margin:15px 0;">
-                <p style="font-size:12px;">رصيد التداول: <b id="tradeBal">$0.00</b></p>
-                <div style="height:120px; border-bottom:1px solid #333; margin-top:10px; display:flex; align-items:flex-end; gap:5px;">
-                    <div style="flex:1; background:var(--trade-color); height:40%;"></div>
-                    <div style="flex:1; background:var(--trade-color); height:70%;"></div>
-                    <div style="flex:1; background:#ff5252; height:50%;"></div>
-                    <div style="flex:1; background:var(--trade-color); height:90%;"></div>
+            <h4><i class="fas fa-wallet"></i> شحن المحفظة</h4>
+            <p style="font-size:11px; color:#aaa; margin-bottom:20px;">اختر وسيلة الدفع وانسخ العنوان، ثم أرسل الإثبات في الشات.</p>
+            <div id="paymentMethods"></div>
+            
+            <hr style="opacity:0.1; margin:20px 0;">
+            
+            <div style="background:rgba(0,0,0,0.3); padding:15px; border-radius:15px;">
+                <p style="font-size:12px; color:#b2ff59; margin-bottom:10px;"><i class="fas fa-comments"></i> دردشة تأكيد الإيداع</p>
+                <div id="chatDisplay" style="height:120px; overflow-y:auto; font-size:11px; margin-bottom:10px;"></div>
+                <div style="display:flex; gap:5px;">
+                    <input type="text" id="chatInput" placeholder="أرسل رابط الصورة أو رسالة..." style="flex:1; background:#111; color:#fff; border:1px solid #333; padding:8px; border-radius:10px; font-size:11px;">
+                    <button onclick="sendMsg()" style="background:#b2ff59; border:none; padding:0 15px; border-radius:10px; color:#000;"><i class="fas fa-paper-plane"></i></button>
                 </div>
             </div>
-            <div style="display:flex; gap:10px;">
-                <button onclick="alert('جاري التحليل...')" class="btn-primary" style="background:#00c853; flex:1;">شراء (Long)</button>
-                <button onclick="alert('جاري التحليل...')" class="btn-primary" style="background:#ff5252; flex:1;">بيع (Short)</button>
-            </div>
         </div>
     </div>
 
-    <div id="exchange" class="tab-content">
-        <div class="glass-container" style="padding:20px;">
-            <h3>تحويل العملات الداخلي</h3>
-            <p style="font-size:10px; color:var(--text-gray); margin-bottom:15px;">حول بين المحفظة الرئيسية وحساب التداول</p>
-            <input type="number" id="exAmt" placeholder="المبلغ ($)">
-            <select id="exDirection">
-                <option value="1">من الرئيسية إلى التداول</option>
-                <option value="2">من التداول إلى الرئيسية</option>
-            </select>
-            <button onclick="processExchange()" class="btn-primary" style="background:var(--events-color); color:black;">تحويل داخلي فوري</button>
-        </div>
+    <div id="support" class="tab-content" style="text-align:center; padding-top:50px;">
+        <i class="fab fa-telegram" style="font-size:80px; color:#0088cc;"></i>
+        <h2>الدعم الفني المباشر</h2>
+        <p style="color:#aaa; font-size:14px; margin:20px 0;">تواصل معنا عبر تليجرام لحل أي مشكلة فوراً</p>
+        <a href="https://t.me/l_I_Z_N" target="_blank" class="btn-primary" style="background:#0088cc; text-decoration:none; display:inline-block; width:200px;">فتح محادثة</a>
     </div>
 
-    <div id="wallet" class="tab-content">
-        <div class="glass-container section-wallet" style="padding:20px;">
-            <h3>المحفظة الرقمية</h3>
-            <div id="depositMethods" style="margin-top:20px;">
-                <p style="font-size:12px; margin-bottom:10px;">طرق الإيداع المتاحة (تواصل مع الأدمن بعد التحويل):</p>
-                <div id="methodsList"></div>
-            </div>
-            <hr style="opacity:0.1; margin:20px 0;">
-            <button onclick="openWithdraw()" class="btn-primary" style="background:var(--admin-color);">طلب سحب أرباح (Withdraw)</button>
-        </div>
-    </div>
-
-    <div id="withdrawModal" class="glass-container" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:90%; z-index:2000; padding:20px; border:1px solid var(--admin-color);">
-        <h3 style="color:var(--admin-color);">سحب الأموال</h3>
-        <input type="number" id="wdAmt" placeholder="المبلغ ($)">
-        <input type="text" id="wdAddr" placeholder="العنوان (USDT / CCP / فودافون)">
-        <button onclick="submitWithdraw()" class="btn-primary" style="background:var(--admin-color);">إرسال الطلب</button>
-        <button onclick="document.getElementById('withdrawModal').style.display='none'" style="background:none; border:none; color:white; width:100%; margin-top:10px;">إغلاق</button>
+    <div class="nav-bar">
+        <div class="nav-item active" onclick="showTab('home', this)"><i class="fas fa-th-large"></i></div>
+        <div class="nav-item" onclick="showTab('deposit', this)"><i class="fas fa-plus-circle"></i></div>
+        <div class="nav-item" onclick="showTab('support', this)"><i class="fas fa-headset"></i></div>
     </div>
 
     <script>
@@ -97,63 +72,87 @@
 
         if(!userKey) window.location.href = "login.html";
 
-        // تحديث البيانات الحية
+        // 1. جلب بيانات اليوزر والترحيب
         db.ref('users/' + userKey).on('value', s => {
             const u = s.val();
-            document.getElementById('mainBal').innerText = (u.balance || 0).toFixed(2);
-            document.getElementById('tradeBal').innerText = "$" + (u.trading_balance || 0).toFixed(2);
+            if(u) {
+                const name = MatrixCrypto.decrypt(u.full_name);
+                document.getElementById('userNameDisplay').innerHTML = `أهلاً بك يا <span style="color:#b2ff59;">${name}</span> 👋`;
+                document.getElementById('userBalance').innerText = (u.balance || 0).toFixed(2);
+            }
         });
 
-        // جلب الباقات
+        // 2. جلب الباقات مع عداد المشتركين
         db.ref('settings/plans').on('value', s => {
             const plans = s.val();
             const list = document.getElementById('plansList');
             list.innerHTML = "";
             for(let id in plans) {
-                list.innerHTML += `<div style="background:rgba(255,255,255,0.03); padding:15px; border-radius:15px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; border:1px solid rgba(0,200,83,0.2);">
-                    <div><b>باقة $${plans[id].price}</b><br><small style="color:var(--trade-color);">ربح متوقع: $${plans[id].profit}</small></div>
-                    <button onclick="buyPlan(${plans[id].price})" class="btn-primary" style="width:70px; height:30px; font-size:11px; background:var(--trade-color); color:black;">اشتراك</button>
+                list.innerHTML += `
+                <div class="plan-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <b style="font-size:16px;">باقة استثمار $${plans[id].price}</b><br>
+                            <small style="color:#b2ff59;">الربح: +$${plans[id].profit}</small>
+                        </div>
+                        <button class="btn-primary" style="width:80px; height:35px; font-size:11px; background:#b2ff59; color:#000;">اشتراك</button>
+                    </div>
+                    <div style="margin-top:10px; font-size:10px; color:#666;">
+                        <i class="fas fa-users"></i> يشارك فيها حالياً: <b style="color:#aaa;">${plans[id].subscribers || 0} مستثمر</b>
+                    </div>
                 </div>`;
             }
         });
 
-        // جلب طرق الإيداع
+        // 3. جلب وسائل الدفع مع نظام العداد
         db.ref('settings/payments').on('value', s => {
             const pays = s.val();
-            const list = document.getElementById('methodsList');
-            list.innerHTML = "";
-            for(let n in pays) {
-                list.innerHTML += `<div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; margin-bottom:8px;">
-                    <small style="color:var(--text-gray);">${n}</small><br>
-                    <code style="font-size:11px;">${pays[n]}</code>
+            const container = document.getElementById('paymentMethods');
+            container.innerHTML = "";
+            for(let name in pays) {
+                container.innerHTML += `
+                <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:15px; margin-bottom:10px; border:1px solid rgba(255,255,255,0.1);">
+                    <div style="display:flex; justify-content:space-between; font-size:12px;">
+                        <b>${name}</b>
+                        <span style="font-size:9px; color:#0088cc;">موثوقة <i class="fas fa-check-circle"></i></span>
+                    </div>
+                    <code id="addr_${name}" style="font-size:10px; display:block; margin:8px 0; color:#b2ff59;">${pays[name].address}</code>
+                    <button onclick="copyAndTrack('${name}')" style="background:rgba(255,255,255,0.1); border:none; color:#fff; font-size:10px; padding:5px 10px; border-radius:5px; width:100%;">نسخ العنوان <i class="fas fa-copy"></i></button>
                 </div>`;
             }
         });
 
-        function showTab(id, btn) {
+        function copyAndTrack(name) {
+            const text = document.getElementById('addr_'+name).innerText;
+            navigator.clipboard.writeText(text);
+            db.ref('settings/payments/' + name + '/useCount').transaction(c => (c || 0) + 1);
+            alert("✅ تم نسخ العنوان. أرسل الإثبات في الشات بالأسفل.");
+        }
+
+        // 4. نظام الشات
+        function sendMsg() {
+            const m = document.getElementById('chatInput').value;
+            if(!m) return;
+            db.ref('chats/' + userKey).push({ sender: "user", text: m, time: new Date().toLocaleTimeString() });
+            document.getElementById('chatInput').value = "";
+        }
+
+        db.ref('chats/' + userKey).on('value', s => {
+            const box = document.getElementById('chatDisplay');
+            box.innerHTML = "";
+            s.forEach(c => {
+                const m = c.val();
+                const color = m.sender === "user" ? "#aaa" : "#b2ff59";
+                box.innerHTML += `<div style="margin-bottom:5px; color:${color}"><b>${m.sender}:</b> ${m.text}</div>`;
+            });
+            box.scrollTop = box.scrollHeight;
+        });
+
+        function showTab(id, el) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             document.getElementById(id).classList.add('active-tab');
-            btn.classList.add('active');
-        }
-
-        function openWithdraw() { document.getElementById('withdrawModal').style.display='block'; }
-
-        function submitWithdraw() {
-            const amt = parseFloat(document.getElementById('wdAmt').value);
-            const addr = document.getElementById('wdAddr').value;
-            if(!amt || !addr) return alert("أكمل البيانات!");
-            db.ref('withdraw_requests').push({ user: userKey, amount: amt, address: addr, status: "pending", date: new Date().toLocaleString() });
-            alert("✅ تم إرسال طلب السحب للأدمن!");
-            document.getElementById('withdrawModal').style.display='none';
-        }
-
-        function processExchange() {
-            const amt = parseFloat(document.getElementById('exAmt').value);
-            const dir = document.getElementById('exDirection').value;
-            if(!amt) return;
-            // منطق التحويل الداخلي بالفايربيز (خصم من جهة وإضافة لجهة)
-            alert("✅ تم طلب التحويل، سيتم المعالجة فوراً.");
+            el.classList.add('active');
         }
     </script>
 </body>
