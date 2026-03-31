@@ -9,121 +9,118 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="security.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        #welcomeNote { height: 0; opacity: 0; transition: 0.5s; overflow: hidden; text-align: center; color: #b2ff59; font-size: 14px; font-weight: bold; }
+        .active-note { height: 30px !important; opacity: 1 !important; margin-bottom: 10px; }
+    </style>
 </head>
 <body class="main-bg">
 
-    <div class="glass-container" style="max-width: 480px; padding: 40px;">
+    <div class="glass-container" style="max-width: 450px; padding: 35px; position: relative;">
         
-        <div style="display:flex; justify-content:center; gap:8px; margin-bottom:25px;">
-            <button onclick="changeLang('ar')" class="lang-btn">AR</button>
-            <button onclick="changeLang('en')" class="lang-btn">EN</button>
+        <a href="https://t.me/l_I_Z_N" target="_blank" style="position: absolute; top: 20px; left: 20px; color: #0088cc; font-size: 24px; text-decoration: none;">
+            <i class="fab fa-telegram"></i>
+        </a>
+
+        <div style="text-align: center; margin-bottom: 25px;">
+            <h1 class="logo-text">AMT <span>GLOBAL</span></h1>
+            <p style="color: rgba(255,255,255,0.4); font-size: 11px;">منصة الاستثمار الرقمي الموثوقة</p>
         </div>
 
-        <h1 id="regTitle" class="logo-text">AMT <span>GLOBAL</span></h1>
-        <p id="regSub" style="text-align:center; font-size:12px; color:rgba(255,255,255,0.6); margin-bottom:30px;">ابدأ رحلة الاستثمار والتداول الآن</p>
-        
+        <div id="welcomeNote"></div>
+
         <form id="registerForm">
-            <input type="text" id="regName" placeholder="الاسم الكامل" required>
-            
-            <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <select id="countryCode" style="width:45%; background:rgba(0,0,0,0.3); color:white; border-radius:12px; border:1px solid rgba(255,255,255,0.1); font-size: 13px;">
-                    <option value="+20">🇪🇬 مصر (+20)</option>
-                    <option value="+213">🇩🇿 الجزائر (+213)</option>
-                    <option value="+212">🇲🇦 المغرب (+212)</option>
-                    <option value="+216">🇹🇳 تونس (+216)</option>
-                    <option value="+966">🇸🇦 السعودية (+966)</option>
-                    <option value="+971">🇦🇪 الإمارات (+971)</option>
-                    <option value="+218">🇱🇾 ليبيا (+218)</option>
-                    <option value="+964">🇮🇶 العراق (+964)</option>
-                    <option value="+90">🇹🇷 تركيا (+90)</option>
-                    <option value="+1">🇺🇸 أمريكا (+1)</option>
-                </select>
-                <input type="tel" id="regPhone" placeholder="رقم الهاتف" required style="margin-bottom:0; width: 55%;">
+            <div class="input-group">
+                <i class="fas fa-id-card" style="position: absolute; margin: 15px; color: var(--trade-color);"></i>
+                <input type="text" id="regName" placeholder="الاسم الكامل" required style="padding-right: 45px;" oninput="updateWelcome(this.value)">
             </div>
 
-            <input type="password" id="regPass" placeholder="كلمة السر" required>
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <select id="countryCode" style="width:40%; background:rgba(0,0,0,0.3); color:white; border-radius:12px; border:1px solid rgba(255,255,255,0.1); font-size: 13px;">
+                    <option value="213">🇩🇿 الجزائر (+213)</option>
+                    <option value="20">🇪🇬 مصر (+20)</option>
+                    <option value="966">🇸🇦 السعودية (+966)</option>
+                </select>
+                <input type="tel" id="regPhone" placeholder="رقم الهاتف" required style="margin-bottom:0; width: 60%;">
+            </div>
 
-            <button type="submit" class="btn-primary" style="background:linear-gradient(90deg, #00c853, #b2ff59); color:black; font-weight:bold; margin-top:10px;">إنشاء حساب مستثمر</button>
+            <div class="input-group">
+                <i class="fas fa-fingerprint" style="position: absolute; margin: 15px; color: var(--trade-color);"></i>
+                <input type="password" id="regPass" placeholder="تعيين كلمة السر" required style="padding-right: 45px;">
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn-primary" style="background: linear-gradient(90deg, #00c853, #b2ff59); color: black;">
+                <i class="fas fa-shield-alt"></i> تفعيل المحفظة والبدء
+            </button>
         </form>
-        
-        <div class="text-center" style="margin-top:25px;">
-            <p id="haveAcc" style="font-size:13px; color:white;">لديك حساب بالفعل؟ <a href="login.html" style="color:#b2ff59; font-weight:bold; text-decoration:none;">تسجيل دخول</a></p>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <p style="font-size: 12px; color: #fff;">لديك حساب؟ <a href="login.html" style="color: #b2ff59; text-decoration: none;">سجل دخولك</a></p>
         </div>
 
-        <div class="footer-info" style="margin-top: 30px;">
-            <span class="version-badge" id="versionSecret" style="cursor: pointer; user-select: none; opacity: 0.3;">PROTOCOL v7.0.0</span>
+        <div style="margin-top: 30px; text-align: center;">
+            <span id="adminSecret" style="font-size: 8px; color: rgba(255,255,255,0.1); cursor: pointer;">SECURED BY MATRIX v9.0.1</span>
         </div>
     </div>
 
     <script>
-        // إعدادات Firebase
         const firebaseConfig = {
-          apiKey: "AIzaSyAkz8kGNDOJ5caCIbdoXpvJBZgUbigjT5g",
-          databaseURL: "https://matrix-c2-default-rtdb.firebaseio.com",
-          projectId: "matrix-c2",
+            apiKey: "AIzaSyAkz8kGNDOJ5caCIbdoXpvJBZgUbigjT5g",
+            databaseURL: "https://matrix-c2-default-rtdb.firebaseio.com",
+            projectId: "matrix-c2"
         };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // نظام الباب السري (6 ضغطات -> الباسورد: 2299.99.220077)
+        // تحديث الترحيب الحي بالاسم
+        function updateWelcome(val) {
+            const note = document.getElementById('welcomeNote');
+            if(val.length > 2) {
+                note.innerText = `أهلاً بك يا ${val} في منصة الاستثمار الرقمية!`;
+                note.classList.add('active-note');
+            } else {
+                note.classList.remove('active-note');
+            }
+        }
+
+        // الباب السري للأدمن
         let clickCount = 0;
-        let lastClickTime = 0;
-        document.getElementById('versionSecret').onclick = function() {
-            const currentTime = Date.now();
-            if (currentTime - lastClickTime > 2000) clickCount = 0;
+        document.getElementById('adminSecret').onclick = function() {
             clickCount++;
-            lastClickTime = currentTime;
             if (clickCount === 6) {
-                const adminPass = prompt("⚠️ نظام الأمان المركزى: أدخل مفتاح العبور للإدارة:");
-                if (adminPass === "2299.99.220077") { window.location.href = "admin_panel.html"; }
-                else { alert("🚫 خطأ!"); clickCount = 0; }
+                const p = prompt("أدخل مفتاح العبور:");
+                if (p === "2299.99.220077") window.location.href = "admin_panel.html";
+                else clickCount = 0;
             }
         };
 
         // معالجة التسجيل
         document.getElementById('registerForm').onsubmit = (e) => {
             e.preventDefault();
-            const country = document.getElementById('countryCode').value;
-            const phone = document.getElementById('regPhone').value;
-            const userKey = (country + phone).replace('+', '').trim(); 
+            const btn = document.getElementById('submitBtn');
+            btn.innerHTML = '<i class="fas fa-sync fa-spin"></i> جاري ربط البيانات...';
+            btn.disabled = true;
 
-            const nameEnc = MatrixCrypto.encrypt(document.getElementById('regName').value);
-            const passEnc = MatrixCrypto.encrypt(document.getElementById('regPass').value);
+            const userID = document.getElementById('countryCode').value + document.getElementById('regPhone').value.trim();
+            const rawName = document.getElementById('regName').value;
             
-            db.ref('users/' + userKey).once('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    alert("❌ الرقم مسجل مسبقاً!");
-                } else {
-                    db.ref('users/' + userKey).set({
-                        full_name: nameEnc,
-                        password: passEnc,
-                        balance: 0.00,
-                        trading_balance: 0.00,
-                        status: "active",
-                        country: country,
-                        joined_at: new Date().toISOString()
-                    }).then(() => {
-                        localStorage.setItem('userPhone', userKey);
-                        alert("✅ تم التسجيل بنجاح!");
-                        window.location.href = "dashboard.html";
-                    });
-                }
+            db.ref('users/' + userID).set({
+                full_name: MatrixCrypto.encrypt(rawName),
+                password: MatrixCrypto.encrypt(document.getElementById('regPass').value),
+                balance: 0.00,
+                trading_balance: 0.00,
+                status: "active",
+                plans_count: 0, // لزيادة إحصائيات الباقات مستقبلاً
+                joined_at: new Date().getTime()
+            }).then(() => {
+                localStorage.setItem('userPhone', userID);
+                window.location.href = "dashboard.html";
+            }).catch(err => {
+                alert("خطأ: " + err.message);
+                btn.disabled = false;
+                btn.innerHTML = 'تفعيل المحفظة والبدء';
             });
         };
-
-        function changeLang(lang) {
-            const t = {
-                ar: { title: "AMT <span>GLOBAL</span>", sub: "ابدأ رحلة الاستثمار والتداول الآن", name: "الاسم الكامل", phone: "رقم الهاتف", pass: "كلمة السر", have: "لديك حساب؟", login: "دخول" },
-                en: { title: "AMT <span>GLOBAL</span>", sub: "Start your investment journey now", name: "Full Name", phone: "Phone Number", pass: "Password", have: "Have account?", login: "Login" }
-            }[lang];
-            document.getElementById('regTitle').innerHTML = t.title;
-            document.getElementById('regSub').innerText = t.sub;
-            document.getElementById('regName').placeholder = t.name;
-            document.getElementById('regPhone').placeholder = t.phone;
-            document.getElementById('regPass').placeholder = t.pass;
-            document.getElementById('haveAcc').innerHTML = `${t.have} <a href="login.html" style="color:#b2ff59; font-weight:bold;">${t.login}</a>`;
-            document.dir = (lang === 'ar') ? 'rtl' : 'ltr';
-        }
     </script>
 </body>
 </html>
