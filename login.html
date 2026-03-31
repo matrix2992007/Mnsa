@@ -3,96 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMT | دخول المستثمرين</title>
+    <title>AMT GLOBAL | دخول آمن</title>
     <link rel="stylesheet" href="glass.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="security.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="main-bg">
 
-    <div class="glass-container" style="max-width: 450px; padding: 40px;">
+    <div class="glass-container" style="max-width: 400px; padding: 40px; border: 1px solid rgba(255,255,255,0.1);">
         
-        <h1 class="logo-text">AMT <span>LOGIN</span></h1>
-        <p style="text-align:center; font-size:12px; color:rgba(255,255,255,0.6); margin-bottom:30px;">أهلاً بك مجدداً في نظام التداول العالمي</p>
-        
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 class="logo-text">AMT <span>LOGIN</span></h1>
+            <p style="color: rgba(255,255,255,0.4); font-size: 11px;">أدخل بيانات الوصول الخاصة بك</p>
+        </div>
+
         <form id="loginForm">
-            <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <select id="loginCountry" style="width:40%; background:rgba(0,0,0,0.3); color:white; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
-                    <option value="+20">🇪🇬 +20</option>
-                    <option value="+213">🇩🇿 +213</option>
-                    <option value="+212">🇲🇦 +212</option>
-                    <option value="+966">🇸🇦 +966</option>
+            <div style="display:flex; gap:5px; margin-bottom:15px;">
+                <select id="lCountry" style="width:35%; background:rgba(0,0,0,0.5); color:white; border-radius:12px; border:1px solid rgba(255,255,255,0.2); font-size: 12px;">
+                    <option value="20">🇪🇬 +20</option>
+                    <option value="213">🇩🇿 +213</option>
                 </select>
-                <input type="tel" id="loginPhone" placeholder="رقم الهاتف" required style="margin-bottom:0;">
+                <input type="tel" id="lPhone" placeholder="رقم الهاتف" required style="width:65%; margin-bottom:0;">
             </div>
 
-            <input type="password" id="loginPass" placeholder="كلمة السر" required>
-            
-            <button type="submit" class="btn-primary" style="background:linear-gradient(90deg, #3b82f6, #60a5fa); color:white; margin-top:10px;">دخول آمن</button>
-        </form>
-        
-        <div class="text-center" style="margin-top:25px;">
-            <p style="font-size:13px; color:white;">ليس لديك حساب؟ <a href="index.html" style="color:var(--trade-color); font-weight:bold; text-decoration:none;">سجل الآن</a></p>
-        </div>
+            <div style="position: relative; margin-bottom: 20px;">
+                <i class="fas fa-key" style="position: absolute; margin: 15px; color: #b2ff59;"></i>
+                <input type="password" id="lPass" placeholder="كلمة السر" required style="padding-right: 45px; width:100%; box-sizing: border-box;">
+            </div>
 
-        <div class="footer-info" style="margin-top: 30px;">
-            <span class="version-badge" id="versionSecretLog" style="cursor: pointer; opacity: 0.3;">SECURE ACCESS v7.0.0</span>
-        </div>
+            <button type="submit" id="logBtn" class="btn-primary" style="background: #fff; color: #000; font-weight: 900;">
+                <i class="fas fa-sign-in-alt"></i> دخول للمحفظة
+            </button>
+        </form>
+
+        <p style="text-align:center; margin-top:20px; font-size:12px;">ليس لديك حساب؟ <a href="index.html" style="color:#b2ff59; text-decoration:none;">إنشاء حساب جديد</a></p>
     </div>
 
     <script>
+        // 1. محرك Matrix Crypto الموحد (نفس اللي في index.html)
+        const MatrixCrypto = {
+            encrypt: (t) => btoa(unescape(encodeURIComponent(t))),
+            decrypt: (e) => decodeURIComponent(escape(atob(e)))
+        };
+
+        // 2. إعدادات Firebase
         const firebaseConfig = {
-          apiKey: "AIzaSyAkz8kGNDOJ5caCIbdoXpvJBZgUbigjT5g",
-          databaseURL: "https://matrix-c2-default-rtdb.firebaseio.com",
-          projectId: "matrix-c2",
+            apiKey: "AIzaSyAkz8kGNDOJ5caCIbdoXpvJBZgUbigjT5g",
+            databaseURL: "https://matrix-c2-default-rtdb.firebaseio.com",
+            projectId: "matrix-c2"
         };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // نظام الباب السري (6 ضغطات)
-        let clickCount = 0;
-        document.getElementById('versionSecretLog').onclick = function() {
-            clickCount++;
-            if (clickCount === 6) {
-                const adminPass = prompt("⚠️ نظام الأمان المركزى: أدخل مفتاح العبور للإدارة:");
-                if (adminPass === "2299.99.220077") { window.location.href = "admin_panel.html"; }
-                else { clickCount = 0; }
-            }
-        };
-
+        // 3. عملية تسجيل الدخول
         document.getElementById('loginForm').onsubmit = (e) => {
             e.preventDefault();
-            const country = document.getElementById('loginCountry').value;
-            const phone = document.getElementById('loginPhone').value;
-            const pass = document.getElementById('loginPass').value;
-            const userKey = (country + phone).replace('+', '').trim();
+            const btn = document.getElementById('logBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحقق...';
+            
+            const userID = document.getElementById('lCountry').value + document.getElementById('lPhone').value.trim();
+            const passInput = document.getElementById('lPass').value;
 
-            // 🔥☢️ بروتوكول التبخير (التدمير الذاتي)
-            // إذا أدخلت هذا الرقم السري والباسورد السري.. تتبخر المنصة
-            if (phone === "999999" && pass === "TERMINATE_2026") {
-                if (confirm("🚨 تحذير نهائي: أنت تطلب تفعيل بروتوكول التبخير. سيتم مسح كافة البيانات للأبد. هل أنت متأكد؟")) {
-                    db.ref('/').remove(); // مسح كل شيء في الفايربيز
-                    alert("☢️ تم تدمير كافة البيانات وتصفية النظام بنجاح.");
-                    window.location.reload();
-                    return;
-                }
-            }
+            db.ref('users/' + userID).once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+                    // تشفير كلمة السر المدخلة لمقارنتها بالموجودة في القاعدة
+                    const encryptedInputPass = MatrixCrypto.encrypt(passInput);
 
-            // الدخول العادي للمستثمر
-            db.ref('users/' + userKey).once('value', (snapshot) => {
-                const userData = snapshot.val();
-                if(userData) {
-                    const encryptedInput = MatrixCrypto.encrypt(pass);
-                    if(userData.password === encryptedInput) {
-                        localStorage.setItem('userPhone', userKey);
+                    if (encryptedInputPass === userData.password) {
+                        localStorage.setItem('userPhone', userID);
                         window.location.href = "dashboard.html";
                     } else {
                         alert("❌ كلمة السر غير صحيحة!");
+                        btn.innerHTML = 'دخول للمحفظة';
                     }
                 } else {
-                    alert("❌ الحساب غير موجود!");
+                    alert("⚠️ هذا الحساب غير موجود، يرجى التسجيل أولاً.");
+                    btn.innerHTML = 'دخول للمحفظة';
                 }
             });
         };
