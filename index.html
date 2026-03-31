@@ -4,19 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AMT GLOBAL | تسجيل مستثمر جديد</title>
+    
     <link rel="stylesheet" href="glass.css">
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="security.js"></script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <style>
         #welcomeNote { height: 0; opacity: 0; transition: 0.5s; overflow: hidden; text-align: center; color: #b2ff59; font-size: 14px; font-weight: bold; }
         .active-note { height: 30px !important; opacity: 1 !important; margin-bottom: 10px; }
+        .input-group { position: relative; margin-bottom: 15px; }
+        input:focus { border-color: #b2ff59 !important; box-shadow: 0 0 10px rgba(178,255,89,0.3); }
     </style>
 </head>
 <body class="main-bg">
 
-    <div class="glass-container" style="max-width: 450px; padding: 35px; position: relative;">
+    <div class="glass-container" style="max-width: 450px; padding: 35px; border: 1px solid rgba(255,255,255,0.1);">
         
         <a href="https://t.me/l_I_Z_N" target="_blank" style="position: absolute; top: 20px; left: 20px; color: #0088cc; font-size: 24px; text-decoration: none;">
             <i class="fab fa-telegram"></i>
@@ -31,39 +36,42 @@
 
         <form id="registerForm">
             <div class="input-group">
-                <i class="fas fa-id-card" style="position: absolute; margin: 15px; color: var(--trade-color);"></i>
-                <input type="text" id="regName" placeholder="الاسم الكامل" required style="padding-right: 45px;" oninput="updateWelcome(this.value)">
+                <i class="fas fa-user-tie" style="position: absolute; margin: 15px; color: #b2ff59;"></i>
+                <input type="text" id="regName" placeholder="الاسم الكامل" required style="padding-right: 45px; width: 100%; box-sizing: border-box;" oninput="updateWelcome(this.value)">
             </div>
 
             <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <select id="countryCode" style="width:40%; background:rgba(0,0,0,0.3); color:white; border-radius:12px; border:1px solid rgba(255,255,255,0.1); font-size: 13px;">
-                    <option value="213">🇩🇿 الجزائر (+213)</option>
+                <select id="countryCode" style="width:40%; background:rgba(0,0,0,0.5); color:white; border-radius:12px; border:1px solid rgba(255,255,255,0.2); font-size: 13px; padding: 10px;">
                     <option value="20">🇪🇬 مصر (+20)</option>
+                    <option value="213">🇩🇿 الجزائر (+213)</option>
                     <option value="966">🇸🇦 السعودية (+966)</option>
                 </select>
-                <input type="tel" id="regPhone" placeholder="رقم الهاتف" required style="margin-bottom:0; width: 60%;">
+                <input type="tel" id="regPhone" placeholder="رقم الهاتف" required style="margin-bottom:0; width: 60%; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: white;">
             </div>
 
             <div class="input-group">
-                <i class="fas fa-fingerprint" style="position: absolute; margin: 15px; color: var(--trade-color);"></i>
-                <input type="password" id="regPass" placeholder="تعيين كلمة السر" required style="padding-right: 45px;">
+                <i class="fas fa-lock" style="position: absolute; margin: 15px; color: #b2ff59;"></i>
+                <input type="password" id="regPass" placeholder="كلمة السر" required style="padding-right: 45px; width: 100%; box-sizing: border-box;">
             </div>
 
-            <button type="submit" id="submitBtn" class="btn-primary" style="background: linear-gradient(90deg, #00c853, #b2ff59); color: black;">
-                <i class="fas fa-shield-alt"></i> تفعيل المحفظة والبدء
+            <button type="submit" id="submitBtn" class="btn-primary" style="background: linear-gradient(90deg, #00c853, #b2ff59); color: black; font-weight: 900; height: 50px;">
+                <i class="fas fa-check-circle"></i> تفعيل المحفظة والبدء
             </button>
         </form>
 
         <div style="text-align: center; margin-top: 20px;">
-            <p style="font-size: 12px; color: #fff;">لديك حساب؟ <a href="login.html" style="color: #b2ff59; text-decoration: none;">سجل دخولك</a></p>
-        </div>
-
-        <div style="margin-top: 30px; text-align: center;">
-            <span id="adminSecret" style="font-size: 8px; color: rgba(255,255,255,0.1); cursor: pointer;">SECURED BY MATRIX v9.0.1</span>
+            <p style="font-size: 12px; color: #fff;">لديك حساب؟ <a href="login.html" style="color: #b2ff59; text-decoration: none; font-weight: bold;">دخول</a></p>
         </div>
     </div>
 
     <script>
+        // 1. إعدادات المحرك (Matrix Crypto المدمج لضمان عدم التعليق)
+        const MatrixCrypto = {
+            encrypt: (t) => btoa(unescape(encodeURIComponent(t))),
+            decrypt: (e) => decodeURIComponent(escape(atob(e)))
+        };
+
+        // 2. تهيئة Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyAkz8kGNDOJ5caCIbdoXpvJBZgUbigjT5g",
             databaseURL: "https://matrix-c2-default-rtdb.firebaseio.com",
@@ -72,10 +80,10 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // تحديث الترحيب الحي بالاسم
+        // 3. الترحيب التفاعلي
         function updateWelcome(val) {
             const note = document.getElementById('welcomeNote');
-            if(val.length > 2) {
+            if(val.trim().length > 2) {
                 note.innerText = `أهلاً بك يا ${val} في منصة الاستثمار الرقمية!`;
                 note.classList.add('active-note');
             } else {
@@ -83,42 +91,37 @@
             }
         }
 
-        // الباب السري للأدمن
-        let clickCount = 0;
-        document.getElementById('adminSecret').onclick = function() {
-            clickCount++;
-            if (clickCount === 6) {
-                const p = prompt("أدخل مفتاح العبور:");
-                if (p === "2299.99.220077") window.location.href = "admin_panel.html";
-                else clickCount = 0;
-            }
-        };
-
-        // معالجة التسجيل
+        // 4. وظيفة التسجيل الفوري (الحل الجذري)
         document.getElementById('registerForm').onsubmit = (e) => {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
             btn.innerHTML = '<i class="fas fa-sync fa-spin"></i> جاري ربط البيانات...';
             btn.disabled = true;
 
-            const userID = document.getElementById('countryCode').value + document.getElementById('regPhone').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const code = document.getElementById('countryCode').value;
+            const userID = code + phone;
             const rawName = document.getElementById('regName').value;
-            
+            const rawPass = document.getElementById('regPass').value;
+
+            // الحفظ باستخدام Callback (أسرع وأضمن من الـ Promise في الموبايل)
             db.ref('users/' + userID).set({
                 full_name: MatrixCrypto.encrypt(rawName),
-                password: MatrixCrypto.encrypt(document.getElementById('regPass').value),
+                password: MatrixCrypto.encrypt(rawPass),
                 balance: 0.00,
                 trading_balance: 0.00,
                 status: "active",
-                plans_count: 0, // لزيادة إحصائيات الباقات مستقبلاً
                 joined_at: new Date().getTime()
-            }).then(() => {
-                localStorage.setItem('userPhone', userID);
-                window.location.href = "dashboard.html";
-            }).catch(err => {
-                alert("خطأ: " + err.message);
-                btn.disabled = false;
-                btn.innerHTML = 'تفعيل المحفظة والبدء';
+            }, (error) => {
+                if (error) {
+                    alert("⚠️ فشل الربط: " + error.message);
+                    btn.disabled = false;
+                    btn.innerHTML = 'تفعيل المحفظة والبدء';
+                } else {
+                    localStorage.setItem('userPhone', userID);
+                    // انتقال سريع
+                    window.location.href = "dashboard.html";
+                }
             });
         };
     </script>
